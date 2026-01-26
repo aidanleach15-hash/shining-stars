@@ -77,7 +77,7 @@ export default function Home() {
 
           <div className="bg-black/90 backdrop-blur-sm p-10 rounded-2xl border-4 border-white shadow-2xl mb-10">
             <p className="text-4xl text-white font-black mb-4">
-              THE #1 DALLAS STARS FAN COMMUNITY
+              THE #1 TEXAS STARS FAN COMMUNITY
             </p>
             <p className="text-2xl text-green-400 font-bold mb-4">
               Connect with thousands of Stars fans worldwide!
