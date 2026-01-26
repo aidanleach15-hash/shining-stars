@@ -4,10 +4,38 @@ import { useState } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useAuth } from '@/lib/auth-context';
+
+const ADMIN_EMAIL = 'aidanleach15@gmail.com';
 
 export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const { user } = useAuth();
+
+  // Check if user is admin
+  const isAdmin = user?.email === ADMIN_EMAIL;
+
+  if (!isAdmin && user) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen py-8 flex items-center justify-center" style={{backgroundColor: '#007A33'}}>
+          <div className="max-w-2xl mx-auto px-4">
+            <div className="bg-white p-8 rounded-lg shadow-lg border-4 border-red-500 text-center">
+              <div className="text-6xl mb-4">🚫</div>
+              <h1 className="text-4xl font-black text-red-600 mb-4 uppercase">ACCESS DENIED</h1>
+              <p className="text-xl text-gray-700 font-bold mb-4">
+                This page is restricted to administrators only.
+              </p>
+              <p className="text-gray-600">
+                If you believe you should have access, contact the site administrator.
+              </p>
+            </div>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   const addSampleGame = async () => {
     setLoading(true);
