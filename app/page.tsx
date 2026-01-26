@@ -1,65 +1,108 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import Link from 'next/link';
 
 export default function Home() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/feed');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: '#007A33'}}>
+        <div className="text-white text-2xl font-bold">Loading...</div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return null;
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen" style={{backgroundColor: '#007A33'}}>
+      {/* Header Bar */}
+      <header className="w-full bg-black border-b-4 border-white shadow-lg" style={{height: '80px'}}>
+        <div className="h-full flex items-center justify-between max-w-7xl mx-auto" style={{paddingLeft: '24px', paddingRight: '24px'}}>
+          <div className="flex items-center gap-3">
+            <span className="text-4xl">⭐</span>
+            <div>
+              <h1 className="text-2xl font-black text-white tracking-wide">STARS HUB</h1>
+              <p className="text-xs text-green-400 font-bold">OFFICIAL FAN ZONE</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="/login"
+              className="px-6 py-2 font-bold text-white hover:text-green-400 transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/signup"
+              className="px-6 py-3 bg-green-600 text-white font-bold hover:bg-green-700 transition-all rounded-lg shadow-md"
+            >
+              Join Now
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <div className="flex items-center justify-center px-4 py-16" style={{minHeight: 'calc(100vh - 80px)'}}>
+        <div className="text-center max-w-5xl">
+          <div className="flex justify-center gap-6 mb-8">
+            <span className="text-9xl animate-pulse">⭐</span>
+            <span className="text-9xl">🏒</span>
+            <span className="text-9xl animate-pulse">⭐</span>
+          </div>
+
+          <h1 className="text-8xl md:text-9xl font-black text-black mb-8 tracking-wider" style={{
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            textShadow: '-4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 4px 4px 0 #fff'
+          }}>
+            GO STARS!
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+          <div className="bg-black/90 backdrop-blur-sm p-10 rounded-2xl border-4 border-white shadow-2xl mb-10">
+            <p className="text-4xl text-white font-black mb-4">
+              THE #1 DALLAS STARS FAN COMMUNITY
+            </p>
+            <p className="text-2xl text-green-400 font-bold mb-4">
+              Connect with thousands of Stars fans worldwide!
+            </p>
+            <p className="text-xl text-gray-200 leading-relaxed">
+              Share game reactions • Celebrate victories • Talk hockey 24/7
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-center gap-5">
+            <Link
+              href="/signup"
+              className="px-14 py-5 bg-white text-green-700 rounded-xl hover:bg-gray-100 font-black border-4 border-black text-2xl shadow-2xl transform hover:scale-105 transition-all"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              JOIN THE FANS
+            </Link>
+            <Link
+              href="/login"
+              className="px-14 py-5 bg-black text-white rounded-xl hover:bg-gray-900 font-black border-4 border-white text-2xl shadow-2xl transform hover:scale-105 transition-all"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              SIGN IN
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
