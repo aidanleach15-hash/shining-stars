@@ -140,6 +140,114 @@ export default function AdminPage() {
     }
   };
 
+  const addSamplePlayerStats = async () => {
+    setLoading(true);
+    setMessage('Adding sample player stats...');
+    try {
+      // Sample Texas Stars players with stats
+      const samplePlayers = [
+        {
+          name: "Cameron Hughes",
+          position: "F",
+          number: 22,
+          gamesPlayed: 42,
+          goals: 18,
+          assists: 24,
+          points: 42,
+          plusMinus: 12,
+          penaltyMinutes: 16
+        },
+        {
+          name: "Matthew Seminoff",
+          position: "F",
+          number: 17,
+          gamesPlayed: 38,
+          goals: 15,
+          assists: 19,
+          points: 34,
+          plusMinus: 8,
+          penaltyMinutes: 22
+        },
+        {
+          name: "Justin Hryckowian",
+          position: "F",
+          number: 21,
+          gamesPlayed: 40,
+          goals: 12,
+          assists: 16,
+          points: 28,
+          plusMinus: 5,
+          penaltyMinutes: 18
+        },
+        {
+          name: "Antonio Stranges",
+          position: "F",
+          number: 27,
+          gamesPlayed: 35,
+          goals: 10,
+          assists: 18,
+          points: 28,
+          plusMinus: 6,
+          penaltyMinutes: 10
+        },
+        {
+          name: "Matej Blumel",
+          position: "F",
+          number: 19,
+          gamesPlayed: 36,
+          goals: 13,
+          assists: 12,
+          points: 25,
+          plusMinus: 4,
+          penaltyMinutes: 14
+        },
+        {
+          name: "Ryan Lohin",
+          position: "D",
+          number: 5,
+          gamesPlayed: 41,
+          goals: 5,
+          assists: 18,
+          points: 23,
+          plusMinus: 10,
+          penaltyMinutes: 24
+        },
+        {
+          name: "Lian Bichsel",
+          position: "D",
+          number: 4,
+          gamesPlayed: 39,
+          goals: 3,
+          assists: 15,
+          points: 18,
+          plusMinus: 7,
+          penaltyMinutes: 32
+        },
+        {
+          name: "Kyle Crnkovic",
+          position: "F",
+          number: 26,
+          gamesPlayed: 38,
+          goals: 8,
+          assists: 9,
+          points: 17,
+          plusMinus: 2,
+          penaltyMinutes: 12
+        }
+      ];
+
+      for (const player of samplePlayers) {
+        await addDoc(collection(db, 'playerStats'), player);
+      }
+
+      setMessage('✅ Sample player stats added successfully!');
+    } catch (error: any) {
+      setMessage('❌ Error adding player stats: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen py-8" style={{backgroundColor: '#007A33'}}>
@@ -218,6 +326,13 @@ export default function AdminPage() {
               >
                 {loading ? 'Adding...' : '📰 Add Real Headlines'}
               </button>
+              <button
+                onClick={addSamplePlayerStats}
+                disabled={loading}
+                className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all"
+              >
+                {loading ? 'Adding...' : '📊 Add Sample Player Stats'}
+              </button>
             </div>
           </div>
 
@@ -264,6 +379,20 @@ export default function AdminPage() {
                   <li>• Matthew Seminoff breakout season</li>
                   <li>• Comeback victory in Iowa</li>
                   <li>• All fresh content from texasstars.com</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-black text-black mb-2 flex items-center space-x-2">
+                  <span>📊</span>
+                  <span>PLAYER STATS</span>
+                </h3>
+                <ul className="text-sm text-gray-700 space-y-1 ml-6">
+                  <li>• Sample stats for 8 key players</li>
+                  <li>• Cameron Hughes, Matthew Seminoff, and more</li>
+                  <li>• Includes goals, assists, points, +/-, PIM</li>
+                  <li>• Players can be compared side-by-side</li>
+                  <li>• Sortable by any stat category</li>
+                  <li>• View on the Stats page</li>
                 </ul>
               </div>
             </div>

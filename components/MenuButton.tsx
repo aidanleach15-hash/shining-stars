@@ -58,6 +58,13 @@ export default function MenuButton() {
             📰 NEWS
           </Link>
           <Link
+            href="/stats"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            📊 STATS
+          </Link>
+          <Link
             href="/live-chat"
             onClick={() => setIsMenuOpen(false)}
             className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
