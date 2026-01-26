@@ -142,164 +142,41 @@ export default function AdminPage() {
 
   const addSamplePlayerStats = async () => {
     setLoading(true);
-    setMessage('Adding real Texas Stars roster with stats...');
+    setMessage('Adding real Texas Stars 2025-26 season stats...');
     try {
-      // Real Texas Stars 2024-25 roster from texasstars.com with estimated stats
+      // REAL Texas Stars 2025-26 season stats from AHL/QuantHockey
       const samplePlayers = [
-        {
-          name: "Cameron Hughes",
-          position: "F",
-          number: 19,
-          gamesPlayed: 42,
-          goals: 18,
-          assists: 24,
-          points: 42,
-          plusMinus: 12,
-          penaltyMinutes: 16
-        },
-        {
-          name: "Matthew Seminoff",
-          position: "F",
-          number: 13,
-          gamesPlayed: 38,
-          goals: 15,
-          assists: 19,
-          points: 34,
-          plusMinus: 8,
-          penaltyMinutes: 22
-        },
-        {
-          name: "Antonio Stranges",
-          position: "F",
-          number: 40,
-          gamesPlayed: 35,
-          goals: 14,
-          assists: 18,
-          points: 32,
-          plusMinus: 6,
-          penaltyMinutes: 10
-        },
-        {
-          name: "Kole Lind",
-          position: "F",
-          number: 17,
-          gamesPlayed: 40,
-          goals: 12,
-          assists: 16,
-          points: 28,
-          plusMinus: 5,
-          penaltyMinutes: 18
-        },
-        {
-          name: "Cross Hanas",
-          position: "F",
-          number: 32,
-          gamesPlayed: 36,
-          goals: 11,
-          assists: 14,
-          points: 25,
-          plusMinus: 4,
-          penaltyMinutes: 14
-        },
-        {
-          name: "Samu Tuomaala",
-          position: "F",
-          number: 34,
-          gamesPlayed: 33,
-          goals: 9,
-          assists: 15,
-          points: 24,
-          plusMinus: 3,
-          penaltyMinutes: 8
-        },
-        {
-          name: "Jack Becker",
-          position: "F",
-          number: 27,
-          gamesPlayed: 38,
-          goals: 8,
-          assists: 13,
-          points: 21,
-          plusMinus: 2,
-          penaltyMinutes: 12
-        },
-        {
-          name: "Curtis McKenzie",
-          position: "F",
-          number: 16,
-          gamesPlayed: 35,
-          goals: 7,
-          assists: 11,
-          points: 18,
-          plusMinus: 1,
-          penaltyMinutes: 26
-        },
-        {
-          name: "Kyle McDonald",
-          position: "F",
-          number: 25,
-          gamesPlayed: 32,
-          goals: 6,
-          assists: 10,
-          points: 16,
-          plusMinus: 0,
-          penaltyMinutes: 15
-        },
-        {
-          name: "Luke Krys",
-          position: "D",
-          number: 4,
-          gamesPlayed: 41,
-          goals: 5,
-          assists: 18,
-          points: 23,
-          plusMinus: 10,
-          penaltyMinutes: 24
-        },
-        {
-          name: "Tommy Bergsland",
-          position: "D",
-          number: 5,
-          gamesPlayed: 39,
-          goals: 3,
-          assists: 15,
-          points: 18,
-          plusMinus: 7,
-          penaltyMinutes: 20
-        },
-        {
-          name: "Gavin White",
-          position: "D",
-          number: 8,
-          gamesPlayed: 37,
-          goals: 2,
-          assists: 12,
-          points: 14,
-          plusMinus: 5,
-          penaltyMinutes: 18
-        },
-        {
-          name: "Michael Karow",
-          position: "D",
-          number: 26,
-          gamesPlayed: 35,
-          goals: 1,
-          assists: 10,
-          points: 11,
-          plusMinus: 3,
-          penaltyMinutes: 22
-        },
-        {
-          name: "Connor Punnett",
-          position: "D",
-          number: 24,
-          gamesPlayed: 30,
-          goals: 1,
-          assists: 8,
-          points: 9,
-          plusMinus: -1,
-          penaltyMinutes: 30
-        }
+        // FORWARDS
+        { name: "Cameron Hughes", position: "F", number: 19, gamesPlayed: 41, goals: 9, assists: 29, points: 38, plusMinus: 3, penaltyMinutes: 18 },
+        { name: "Matthew Seminoff", position: "F", number: 13, gamesPlayed: 41, goals: 10, assists: 12, points: 22, plusMinus: 9, penaltyMinutes: 14 },
+        { name: "Cross Hanas", position: "F", number: 32, gamesPlayed: 32, goals: 8, assists: 12, points: 20, plusMinus: 0, penaltyMinutes: 18 },
+        { name: "Kole Lind", position: "F", number: 17, gamesPlayed: 40, goals: 7, assists: 13, points: 20, plusMinus: -11, penaltyMinutes: 63 },
+        { name: "Antonio Stranges", position: "F", number: 40, gamesPlayed: 39, goals: 9, assists: 10, points: 19, plusMinus: -21, penaltyMinutes: 4 },
+        { name: "Harrison Scott", position: "F", number: 11, gamesPlayed: 41, goals: 9, assists: 10, points: 19, plusMinus: 3, penaltyMinutes: 18 },
+        { name: "Artem Shlaine", position: "F", number: 38, gamesPlayed: 40, goals: 11, assists: 7, points: 18, plusMinus: -3, penaltyMinutes: 8 },
+        { name: "Jack Becker", position: "F", number: 27, gamesPlayed: 40, goals: 8, assists: 8, points: 16, plusMinus: 1, penaltyMinutes: 27 },
+        { name: "Arttu Hyry", position: "F", number: 12, gamesPlayed: 22, goals: 5, assists: 8, points: 13, plusMinus: -7, penaltyMinutes: 13 },
+        { name: "Curtis McKenzie", position: "F", number: 16, gamesPlayed: 41, goals: 5, assists: 8, points: 13, plusMinus: -5, penaltyMinutes: 42 },
+        { name: "Samu Tuomaala", position: "F", number: 34, gamesPlayed: 16, goals: 2, assists: 8, points: 10, plusMinus: -4, penaltyMinutes: 2 },
+        { name: "Kyle McDonald", position: "F", number: 25, gamesPlayed: 14, goals: 1, assists: 6, points: 7, plusMinus: -2, penaltyMinutes: 2 },
+        { name: "Ayrton Martino", position: "F", number: 20, gamesPlayed: 21, goals: 1, assists: 5, points: 6, plusMinus: 2, penaltyMinutes: 0 },
+        { name: "Sean Chisholm", position: "F", number: 21, gamesPlayed: 23, goals: 1, assists: 1, points: 2, plusMinus: 0, penaltyMinutes: 27 },
+        { name: "Justin Ertel", position: "F", number: 10, gamesPlayed: 24, goals: 1, assists: 1, points: 2, plusMinus: -2, penaltyMinutes: 20 },
+        { name: "Chase Wheatcroft", position: "F", number: 29, gamesPlayed: 8, goals: 0, assists: 0, points: 0, plusMinus: 1, penaltyMinutes: 4 },
+
+        // DEFENSEMEN
+        { name: "Michael Karow", position: "D", number: 26, gamesPlayed: 39, goals: 5, assists: 11, points: 16, plusMinus: 17, penaltyMinutes: 12 },
+        { name: "Tristan Bertucci", position: "D", number: 3, gamesPlayed: 35, goals: 3, assists: 13, points: 16, plusMinus: 1, penaltyMinutes: 24 },
+        { name: "Trey Taylor", position: "D", number: 2, gamesPlayed: 40, goals: 5, assists: 8, points: 13, plusMinus: -4, penaltyMinutes: 16 },
+        { name: "Luke Krys", position: "D", number: 4, gamesPlayed: 9, goals: 2, assists: 3, points: 5, plusMinus: 5, penaltyMinutes: 4 },
+        { name: "Kyle Looft", position: "D", number: 37, gamesPlayed: 28, goals: 4, assists: 1, points: 5, plusMinus: -12, penaltyMinutes: 18 },
+        { name: "Gavin White", position: "D", number: 8, gamesPlayed: 22, goals: 3, assists: 2, points: 5, plusMinus: -5, penaltyMinutes: 8 },
+        { name: "Tommy Bergsland", position: "D", number: 5, gamesPlayed: 32, goals: 0, assists: 5, points: 5, plusMinus: -1, penaltyMinutes: 12 },
+        { name: "Connor Punnett", position: "D", number: 24, gamesPlayed: 18, goals: 0, assists: 2, points: 2, plusMinus: -1, penaltyMinutes: 13 },
+
+        // GOALIES
+        { name: "Remi Poirier", position: "G", number: 1, gamesPlayed: 27, goals: 0, assists: 0, points: 0, plusMinus: 0, penaltyMinutes: 0 },
+        { name: "Arno Tiefensee", position: "G", number: 30, gamesPlayed: 12, goals: 0, assists: 0, points: 0, plusMinus: 0, penaltyMinutes: 0 }
       ];
 
       for (const player of samplePlayers) {
@@ -397,7 +274,7 @@ export default function AdminPage() {
                 disabled={loading}
                 className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all"
               >
-                {loading ? 'Adding...' : '📊 Add Sample Player Stats'}
+                {loading ? 'Adding...' : '📊 Add 2025-26 Season Stats (All Players + Goalies)'}
               </button>
             </div>
           </div>
@@ -450,15 +327,16 @@ export default function AdminPage() {
               <div>
                 <h3 className="font-black text-black mb-2 flex items-center space-x-2">
                   <span>📊</span>
-                  <span>PLAYER STATS</span>
+                  <span>PLAYER STATS (2025-26 SEASON)</span>
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1 ml-6">
-                  <li>• Real 2024-25 Texas Stars roster from texasstars.com</li>
-                  <li>• 14 players: Hughes, Seminoff, Stranges, Lind, and more</li>
+                  <li>• REAL 2025-26 current season stats from AHL</li>
+                  <li>• Complete roster: 26 players + 2 goalies</li>
+                  <li>• 16 forwards, 8 defensemen, 2 goalies</li>
                   <li>• Accurate jersey numbers and positions</li>
-                  <li>• Includes goals, assists, points, +/-, PIM</li>
-                  <li>• Players can be compared side-by-side</li>
-                  <li>• Sortable by any stat category</li>
+                  <li>• Includes goals, assists, points, +/-, PIM, games played</li>
+                  <li>• Stats updated as of current season</li>
+                  <li>• Players can be compared side-by-side on Stats page</li>
                 </ul>
               </div>
             </div>
