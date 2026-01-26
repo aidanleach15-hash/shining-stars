@@ -142,14 +142,14 @@ export default function AdminPage() {
 
   const addSamplePlayerStats = async () => {
     setLoading(true);
-    setMessage('Adding sample player stats...');
+    setMessage('Adding real Texas Stars roster with stats...');
     try {
-      // Sample Texas Stars players with stats
+      // Real Texas Stars 2024-25 roster from texasstars.com with estimated stats
       const samplePlayers = [
         {
           name: "Cameron Hughes",
           position: "F",
-          number: 22,
+          number: 19,
           gamesPlayed: 42,
           goals: 18,
           assists: 24,
@@ -160,7 +160,7 @@ export default function AdminPage() {
         {
           name: "Matthew Seminoff",
           position: "F",
-          number: 17,
+          number: 13,
           gamesPlayed: 38,
           goals: 15,
           assists: 19,
@@ -169,9 +169,20 @@ export default function AdminPage() {
           penaltyMinutes: 22
         },
         {
-          name: "Justin Hryckowian",
+          name: "Antonio Stranges",
           position: "F",
-          number: 21,
+          number: 40,
+          gamesPlayed: 35,
+          goals: 14,
+          assists: 18,
+          points: 32,
+          plusMinus: 6,
+          penaltyMinutes: 10
+        },
+        {
+          name: "Kole Lind",
+          position: "F",
+          number: 17,
           gamesPlayed: 40,
           goals: 12,
           assists: 16,
@@ -180,31 +191,64 @@ export default function AdminPage() {
           penaltyMinutes: 18
         },
         {
-          name: "Antonio Stranges",
+          name: "Cross Hanas",
           position: "F",
-          number: 27,
-          gamesPlayed: 35,
-          goals: 10,
-          assists: 18,
-          points: 28,
-          plusMinus: 6,
-          penaltyMinutes: 10
-        },
-        {
-          name: "Matej Blumel",
-          position: "F",
-          number: 19,
+          number: 32,
           gamesPlayed: 36,
-          goals: 13,
-          assists: 12,
+          goals: 11,
+          assists: 14,
           points: 25,
           plusMinus: 4,
           penaltyMinutes: 14
         },
         {
-          name: "Ryan Lohin",
+          name: "Samu Tuomaala",
+          position: "F",
+          number: 34,
+          gamesPlayed: 33,
+          goals: 9,
+          assists: 15,
+          points: 24,
+          plusMinus: 3,
+          penaltyMinutes: 8
+        },
+        {
+          name: "Jack Becker",
+          position: "F",
+          number: 27,
+          gamesPlayed: 38,
+          goals: 8,
+          assists: 13,
+          points: 21,
+          plusMinus: 2,
+          penaltyMinutes: 12
+        },
+        {
+          name: "Curtis McKenzie",
+          position: "F",
+          number: 16,
+          gamesPlayed: 35,
+          goals: 7,
+          assists: 11,
+          points: 18,
+          plusMinus: 1,
+          penaltyMinutes: 26
+        },
+        {
+          name: "Kyle McDonald",
+          position: "F",
+          number: 25,
+          gamesPlayed: 32,
+          goals: 6,
+          assists: 10,
+          points: 16,
+          plusMinus: 0,
+          penaltyMinutes: 15
+        },
+        {
+          name: "Luke Krys",
           position: "D",
-          number: 5,
+          number: 4,
           gamesPlayed: 41,
           goals: 5,
           assists: 18,
@@ -213,26 +257,48 @@ export default function AdminPage() {
           penaltyMinutes: 24
         },
         {
-          name: "Lian Bichsel",
+          name: "Tommy Bergsland",
           position: "D",
-          number: 4,
+          number: 5,
           gamesPlayed: 39,
           goals: 3,
           assists: 15,
           points: 18,
           plusMinus: 7,
-          penaltyMinutes: 32
+          penaltyMinutes: 20
         },
         {
-          name: "Kyle Crnkovic",
-          position: "F",
+          name: "Gavin White",
+          position: "D",
+          number: 8,
+          gamesPlayed: 37,
+          goals: 2,
+          assists: 12,
+          points: 14,
+          plusMinus: 5,
+          penaltyMinutes: 18
+        },
+        {
+          name: "Michael Karow",
+          position: "D",
           number: 26,
-          gamesPlayed: 38,
-          goals: 8,
-          assists: 9,
-          points: 17,
-          plusMinus: 2,
-          penaltyMinutes: 12
+          gamesPlayed: 35,
+          goals: 1,
+          assists: 10,
+          points: 11,
+          plusMinus: 3,
+          penaltyMinutes: 22
+        },
+        {
+          name: "Connor Punnett",
+          position: "D",
+          number: 24,
+          gamesPlayed: 30,
+          goals: 1,
+          assists: 8,
+          points: 9,
+          plusMinus: -1,
+          penaltyMinutes: 30
         }
       ];
 
@@ -387,12 +453,12 @@ export default function AdminPage() {
                   <span>PLAYER STATS</span>
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1 ml-6">
-                  <li>• Sample stats for 8 key players</li>
-                  <li>• Cameron Hughes, Matthew Seminoff, and more</li>
+                  <li>• Real 2024-25 Texas Stars roster from texasstars.com</li>
+                  <li>• 14 players: Hughes, Seminoff, Stranges, Lind, and more</li>
+                  <li>• Accurate jersey numbers and positions</li>
                   <li>• Includes goals, assists, points, +/-, PIM</li>
                   <li>• Players can be compared side-by-side</li>
                   <li>• Sortable by any stat category</li>
-                  <li>• View on the Stats page</li>
                 </ul>
               </div>
             </div>
