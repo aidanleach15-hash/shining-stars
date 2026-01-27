@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, onSnapshot } from 'firebase/firestore';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface PlayerStats {
@@ -11,11 +11,21 @@ interface PlayerStats {
   position: string;
   number: number;
   gamesPlayed: number;
-  goals: number;
-  assists: number;
-  points: number;
-  plusMinus: number;
-  penaltyMinutes: number;
+  // Skater stats
+  goals?: number;
+  assists?: number;
+  points?: number;
+  plusMinus?: number;
+  penaltyMinutes?: number;
+  // Goalie stats
+  wins?: number;
+  losses?: number;
+  overtimeLosses?: number;
+  savePercentage?: number;
+  goalsAgainstAverage?: number;
+  shutouts?: number;
+  saves?: number;
+  shotsAgainst?: number;
 }
 
 export default function StatsPage() {
@@ -24,7 +34,7 @@ export default function StatsPage() {
   const [sortBy, setSortBy] = useState<keyof PlayerStats>('points');
 
   useEffect(() => {
-    const q = query(collection(db, 'playerStats'), orderBy('points', 'desc'));
+    const q = query(collection(db, 'playerStats'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const playersData = snapshot.docs.map(doc => ({
@@ -46,8 +56,17 @@ export default function StatsPage() {
   };
 
   const sortedPlayers = [...players].sort((a, b) => {
-    if (typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number') {
-      return (b[sortBy] as number) - (a[sortBy] as number);
+    const aVal = a[sortBy] ?? -Infinity;
+    const bVal = b[sortBy] ?? -Infinity;
+
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      // For GAA, lower is better, so reverse the sort
+      if (sortBy === 'goalsAgainstAverage') {
+        if (aVal === -Infinity) return 1;
+        if (bVal === -Infinity) return -1;
+        return aVal - bVal;
+      }
+      return bVal - aVal;
     }
     return 0;
   });
@@ -98,32 +117,65 @@ export default function StatsPage() {
                       <p className="text-sm font-bold text-gray-600 uppercase">{player.position}</p>
                     </div>
                     <div className="space-y-2">
-                      <div className="flex justify-between border-b-2 border-gray-200 pb-1">
-                        <span className="font-bold text-gray-700">GP:</span>
-                        <span className="font-black text-black">{player.gamesPlayed}</span>
-                      </div>
-                      <div className="flex justify-between border-b-2 border-gray-200 pb-1">
-                        <span className="font-bold text-gray-700">Goals:</span>
-                        <span className="font-black text-green-600 text-lg">{player.goals}</span>
-                      </div>
-                      <div className="flex justify-between border-b-2 border-gray-200 pb-1">
-                        <span className="font-bold text-gray-700">Assists:</span>
-                        <span className="font-black text-blue-600 text-lg">{player.assists}</span>
-                      </div>
-                      <div className="flex justify-between border-b-2 border-gray-200 pb-1">
-                        <span className="font-bold text-gray-700">Points:</span>
-                        <span className="font-black text-black text-xl">{player.points}</span>
-                      </div>
-                      <div className="flex justify-between border-b-2 border-gray-200 pb-1">
-                        <span className="font-bold text-gray-700">+/-:</span>
-                        <span className={`font-black text-lg ${player.plusMinus >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {player.plusMinus >= 0 ? '+' : ''}{player.plusMinus}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-bold text-gray-700">PIM:</span>
-                        <span className="font-black text-orange-600">{player.penaltyMinutes}</span>
-                      </div>
+                      {player.position === 'G' ? (
+                        // Goalie stats
+                        <>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">GP:</span>
+                            <span className="font-black text-black">{player.gamesPlayed}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">Record:</span>
+                            <span className="font-black text-black text-lg">{player.wins || 0}-{player.losses || 0}-{player.overtimeLosses || 0}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">SV%:</span>
+                            <span className="font-black text-green-600 text-xl">{player.savePercentage ? player.savePercentage.toFixed(3) : '.000'}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">GAA:</span>
+                            <span className="font-black text-blue-600 text-lg">{player.goalsAgainstAverage ? player.goalsAgainstAverage.toFixed(2) : '0.00'}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">SO:</span>
+                            <span className="font-black text-purple-600">{player.shutouts || 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-bold text-gray-700">Saves:</span>
+                            <span className="font-black text-black">{player.saves || 0}/{player.shotsAgainst || 0}</span>
+                          </div>
+                        </>
+                      ) : (
+                        // Skater stats
+                        <>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">GP:</span>
+                            <span className="font-black text-black">{player.gamesPlayed}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">Goals:</span>
+                            <span className="font-black text-green-600 text-lg">{player.goals || 0}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">Assists:</span>
+                            <span className="font-black text-blue-600 text-lg">{player.assists || 0}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">Points:</span>
+                            <span className="font-black text-black text-xl">{player.points || 0}</span>
+                          </div>
+                          <div className="flex justify-between border-b-2 border-gray-200 pb-1">
+                            <span className="font-bold text-gray-700">+/-:</span>
+                            <span className={`font-black text-lg ${(player.plusMinus || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {(player.plusMinus || 0) >= 0 ? '+' : ''}{player.plusMinus || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-bold text-gray-700">PIM:</span>
+                            <span className="font-black text-orange-600">{player.penaltyMinutes || 0}</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <button
                       onClick={() => togglePlayerSelection(player.id)}
@@ -139,19 +191,25 @@ export default function StatsPage() {
 
           {/* Sort Controls */}
           <div className="bg-white p-4 rounded-lg shadow-lg border-4 border-black mb-6">
-            <div className="flex items-center justify-center space-x-4 flex-wrap">
-              <span className="font-black text-black uppercase">Sort By:</span>
-              {(['points', 'goals', 'assists', 'gamesPlayed', 'plusMinus'] as const).map(stat => (
+            <div className="flex items-center justify-center space-x-2 flex-wrap gap-2">
+              <span className="font-black text-black uppercase text-sm">Sort By:</span>
+              {(['points', 'goals', 'assists', 'gamesPlayed', 'plusMinus', 'savePercentage', 'goalsAgainstAverage'] as const).map(stat => (
                 <button
                   key={stat}
                   onClick={() => setSortBy(stat)}
-                  className={`px-4 py-2 rounded-lg font-bold uppercase text-sm transition-all ${
+                  className={`px-3 py-2 rounded-lg font-bold uppercase text-xs transition-all ${
                     sortBy === stat
                       ? 'bg-green-600 text-white border-2 border-black'
                       : 'bg-gray-200 text-black hover:bg-gray-300'
                   }`}
                 >
-                  {stat === 'gamesPlayed' ? 'Games' : stat === 'plusMinus' ? '+/-' : stat}
+                  {stat === 'gamesPlayed' ? 'GP' :
+                   stat === 'plusMinus' ? '+/-' :
+                   stat === 'savePercentage' ? 'SV%' :
+                   stat === 'goalsAgainstAverage' ? 'GAA' :
+                   stat === 'points' ? 'PTS' :
+                   stat === 'goals' ? 'G' :
+                   stat === 'assists' ? 'A' : stat}
                 </button>
               ))}
             </div>
@@ -175,21 +233,24 @@ export default function StatsPage() {
                 <table className="w-full">
                   <thead className="bg-gray-100 border-b-4 border-black">
                     <tr>
-                      <th className="px-4 py-3 text-left font-black text-black uppercase text-sm">Select</th>
-                      <th className="px-4 py-3 text-left font-black text-black uppercase text-sm">#</th>
-                      <th className="px-4 py-3 text-left font-black text-black uppercase text-sm">Player</th>
-                      <th className="px-4 py-3 text-left font-black text-black uppercase text-sm">Pos</th>
-                      <th className="px-4 py-3 text-center font-black text-black uppercase text-sm">GP</th>
-                      <th className="px-4 py-3 text-center font-black text-black uppercase text-sm">G</th>
-                      <th className="px-4 py-3 text-center font-black text-black uppercase text-sm">A</th>
-                      <th className="px-4 py-3 text-center font-black text-black uppercase text-sm">PTS</th>
-                      <th className="px-4 py-3 text-center font-black text-black uppercase text-sm">+/-</th>
-                      <th className="px-4 py-3 text-center font-black text-black uppercase text-sm">PIM</th>
+                      <th className="px-3 py-3 text-left font-black text-black uppercase text-xs">Select</th>
+                      <th className="px-3 py-3 text-left font-black text-black uppercase text-xs">#</th>
+                      <th className="px-3 py-3 text-left font-black text-black uppercase text-xs">Player</th>
+                      <th className="px-3 py-3 text-left font-black text-black uppercase text-xs">Pos</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">GP</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">G</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">A</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">PTS</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">+/-</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">PIM</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">SV%</th>
+                      <th className="px-3 py-3 text-center font-black text-black uppercase text-xs">GAA</th>
                     </tr>
                   </thead>
                   <tbody>
                     {sortedPlayers.map((player, index) => {
                       const isSelected = selectedPlayers.includes(player.id);
+                      const isGoalie = player.position === 'G';
                       return (
                         <tr
                           key={player.id}
@@ -197,11 +258,11 @@ export default function StatsPage() {
                             isSelected ? 'bg-green-100' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                           }`}
                         >
-                          <td className="px-4 py-3">
+                          <td className="px-3 py-3">
                             <button
                               onClick={() => togglePlayerSelection(player.id)}
                               disabled={!isSelected && selectedPlayers.length >= 3}
-                              className={`px-3 py-1 rounded font-bold text-sm ${
+                              className={`px-2 py-1 rounded font-bold text-xs ${
                                 isSelected
                                   ? 'bg-green-600 text-white'
                                   : selectedPlayers.length >= 3
@@ -212,17 +273,31 @@ export default function StatsPage() {
                               {isSelected ? '✓' : '+'}
                             </button>
                           </td>
-                          <td className="px-4 py-3 font-black text-green-600 text-lg">#{player.number}</td>
-                          <td className="px-4 py-3 font-bold text-black">{player.name}</td>
-                          <td className="px-4 py-3 font-bold text-gray-600 uppercase">{player.position}</td>
-                          <td className="px-4 py-3 text-center font-bold">{player.gamesPlayed}</td>
-                          <td className="px-4 py-3 text-center font-black text-green-600">{player.goals}</td>
-                          <td className="px-4 py-3 text-center font-black text-blue-600">{player.assists}</td>
-                          <td className="px-4 py-3 text-center font-black text-lg">{player.points}</td>
-                          <td className={`px-4 py-3 text-center font-black ${player.plusMinus >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {player.plusMinus >= 0 ? '+' : ''}{player.plusMinus}
+                          <td className="px-3 py-3 font-black text-green-600 text-base">#{player.number}</td>
+                          <td className="px-3 py-3 font-bold text-black text-sm">{player.name}</td>
+                          <td className="px-3 py-3 font-bold text-gray-600 uppercase text-xs">{player.position}</td>
+                          <td className="px-3 py-3 text-center font-bold text-sm">{player.gamesPlayed}</td>
+                          <td className="px-3 py-3 text-center font-black text-green-600 text-sm">
+                            {isGoalie ? '-' : (player.goals || 0)}
                           </td>
-                          <td className="px-4 py-3 text-center font-bold text-orange-600">{player.penaltyMinutes}</td>
+                          <td className="px-3 py-3 text-center font-black text-blue-600 text-sm">
+                            {isGoalie ? '-' : (player.assists || 0)}
+                          </td>
+                          <td className="px-3 py-3 text-center font-black text-base">
+                            {isGoalie ? `${player.wins || 0}-${player.losses || 0}-${player.overtimeLosses || 0}` : (player.points || 0)}
+                          </td>
+                          <td className={`px-3 py-3 text-center font-black text-sm ${isGoalie ? 'text-gray-400' : (player.plusMinus || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {isGoalie ? '-' : `${(player.plusMinus || 0) >= 0 ? '+' : ''}${player.plusMinus || 0}`}
+                          </td>
+                          <td className="px-3 py-3 text-center font-bold text-orange-600 text-sm">
+                            {isGoalie ? '-' : (player.penaltyMinutes || 0)}
+                          </td>
+                          <td className="px-3 py-3 text-center font-black text-purple-600 text-sm">
+                            {isGoalie ? (player.savePercentage ? player.savePercentage.toFixed(3) : '.000') : '-'}
+                          </td>
+                          <td className="px-3 py-3 text-center font-black text-blue-600 text-sm">
+                            {isGoalie ? (player.goalsAgainstAverage ? player.goalsAgainstAverage.toFixed(2) : '0.00') : '-'}
+                          </td>
                         </tr>
                       );
                     })}

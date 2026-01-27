@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, getDocs, deleteDoc } from 'firebase/firestore';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/lib/auth-context';
 
@@ -140,10 +140,88 @@ export default function AdminPage() {
     }
   };
 
+  const autoUpdatePlayerStats = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating player stats...');
+    try {
+      const response = await fetch('/api/update-player-stats', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const autoUpdateEverything = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating EVERYTHING (games, news, and player stats)...');
+    try {
+      // Update games and news
+      const gamesResponse = await fetch('/api/update-stars-data', {
+        method: 'POST',
+      });
+      const gamesData = await gamesResponse.json();
+
+      // Update player stats
+      const statsResponse = await fetch('/api/update-player-stats', {
+        method: 'POST',
+      });
+      const statsData = await statsResponse.json();
+
+      if (gamesData.success && statsData.success) {
+        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message}`);
+      } else {
+        setMessage(`❌ Error: ${gamesData.error || statsData.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearAllPlayerStats = async () => {
+    setLoading(true);
+    setMessage('Deleting all player stats from database...');
+    try {
+      const statsQuery = query(collection(db, 'playerStats'));
+      const statsSnapshot = await getDocs(statsQuery);
+
+      let deletedCount = 0;
+      for (const doc of statsSnapshot.docs) {
+        await deleteDoc(doc.ref);
+        deletedCount++;
+      }
+
+      setMessage(`✅ Deleted ${deletedCount} player entries. Database is now empty.`);
+    } catch (error: any) {
+      setMessage('❌ Error clearing stats: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addSamplePlayerStats = async () => {
     setLoading(true);
-    setMessage('Adding real Texas Stars 2025-26 season stats...');
+    setMessage('Clearing old stats and adding fresh 2025-26 season data...');
     try {
+      // Clear existing player stats first
+      const statsQuery = query(collection(db, 'playerStats'));
+      const statsSnapshot = await getDocs(statsQuery);
+      for (const doc of statsSnapshot.docs) {
+        await deleteDoc(doc.ref);
+      }
+
       // REAL Texas Stars 2025-26 season stats from AHL/QuantHockey
       const samplePlayers = [
         // FORWARDS
@@ -174,16 +252,16 @@ export default function AdminPage() {
         { name: "Tommy Bergsland", position: "D", number: 5, gamesPlayed: 32, goals: 0, assists: 5, points: 5, plusMinus: -1, penaltyMinutes: 12 },
         { name: "Connor Punnett", position: "D", number: 24, gamesPlayed: 18, goals: 0, assists: 2, points: 2, plusMinus: -1, penaltyMinutes: 13 },
 
-        // GOALIES
-        { name: "Remi Poirier", position: "G", number: 1, gamesPlayed: 27, goals: 0, assists: 0, points: 0, plusMinus: 0, penaltyMinutes: 0 },
-        { name: "Arno Tiefensee", position: "G", number: 30, gamesPlayed: 12, goals: 0, assists: 0, points: 0, plusMinus: 0, penaltyMinutes: 0 }
+        // GOALIES (2025-26 season stats)
+        { name: "Remi Poirier", position: "G", number: 1, gamesPlayed: 27, wins: 11, losses: 12, overtimeLosses: 1, savePercentage: 0.895, goalsAgainstAverage: 3.37, shutouts: 1, saves: 719, shotsAgainst: 803 },
+        { name: "Arno Tiefensee", position: "G", number: 30, gamesPlayed: 12, wins: 5, losses: 6, overtimeLosses: 0, savePercentage: 0.886, goalsAgainstAverage: 3.54, shutouts: 0, saves: 327, shotsAgainst: 369 }
       ];
 
       for (const player of samplePlayers) {
         await addDoc(collection(db, 'playerStats'), player);
       }
 
-      setMessage('✅ Sample player stats added successfully!');
+      setMessage('✅ Player stats refreshed! Each player now appears once with correct stats.');
     } catch (error: any) {
       setMessage('❌ Error adding player stats: ' + error.message);
     } finally {
@@ -224,17 +302,34 @@ export default function AdminPage() {
               <span>Auto-Update (Recommended)</span>
             </h2>
             <button
-              onClick={autoUpdateStarsData}
+              onClick={autoUpdateEverything}
               disabled={loading}
               className="w-full px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-black text-xl uppercase tracking-wider transition-all mb-4 border-4 border-black shadow-lg"
             >
-              {loading ? '⏳ Updating...' : '🔄 AUTO-UPDATE ALL GAMES & NEWS'}
+              {loading ? '⏳ Updating...' : '🔄 AUTO-UPDATE EVERYTHING'}
             </button>
-            <p className="text-sm text-gray-600 text-center font-semibold">
-              Automatically fetches ALL upcoming games and latest headlines from texasstars.com
+            <p className="text-sm text-gray-600 text-center font-semibold mb-4">
+              Updates ALL data: games, news, AND player stats in one click!
             </p>
-            <p className="text-xs text-gray-500 text-center mt-2">
-              Updates games automatically as dates pass!
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={autoUpdateStarsData}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-sm transition-all"
+              >
+                {loading ? '⏳' : '🏒'} Games & News
+              </button>
+              <button
+                onClick={autoUpdatePlayerStats}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-sm transition-all"
+              >
+                {loading ? '⏳' : '📊'} Player Stats
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 text-center mt-3">
+              Click individual buttons above to update specific data types
             </p>
           </div>
 
@@ -270,6 +365,13 @@ export default function AdminPage() {
                 {loading ? 'Adding...' : '📰 Add Real Headlines'}
               </button>
               <button
+                onClick={clearAllPlayerStats}
+                disabled={loading}
+                className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all border-2 border-red-800"
+              >
+                {loading ? 'Deleting...' : '🗑️ CLEAR ALL PLAYER STATS (Delete Duplicates)'}
+              </button>
+              <button
                 onClick={addSamplePlayerStats}
                 disabled={loading}
                 className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all"
@@ -282,6 +384,19 @@ export default function AdminPage() {
           <div className="bg-white p-6 rounded-lg shadow-lg border-4 border-black">
             <h2 className="text-2xl font-black text-black mb-4 uppercase">What Auto-Update Does</h2>
             <div className="space-y-4">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border-2 border-green-500">
+                <h3 className="font-black text-green-700 mb-2 flex items-center space-x-2">
+                  <span>⚡</span>
+                  <span>REAL-TIME AUTO-UPDATE</span>
+                </h3>
+                <ul className="text-sm text-gray-700 space-y-1 ml-6">
+                  <li>• Updates games, news, AND player stats automatically</li>
+                  <li>• Fetches latest data from official sources</li>
+                  <li>• Removes outdated information automatically</li>
+                  <li>• No manual data entry needed!</li>
+                  <li>• Click once to update everything</li>
+                </ul>
+              </div>
               <div className="bg-green-50 p-4 rounded-lg border-2 border-green-500">
                 <h3 className="font-black text-green-700 mb-2 flex items-center space-x-2">
                   <span>🔄</span>
