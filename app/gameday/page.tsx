@@ -34,6 +34,25 @@ export default function GameDayPage() {
   const [liveGame, setLiveGame] = useState<LiveGame | null>(null);
   const [penalties, setPenalties] = useState<Penalty[]>([]);
 
+  // Auto-fetch live game data every 30 seconds
+  useEffect(() => {
+    const fetchLiveData = async () => {
+      try {
+        await fetch('/api/auto-update-live-game');
+      } catch (error) {
+        console.error('Error fetching live data:', error);
+      }
+    };
+
+    // Fetch immediately on load
+    fetchLiveData();
+
+    // Then fetch every 30 seconds
+    const interval = setInterval(fetchLiveData, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const q = query(
       collection(db, 'liveGame'),

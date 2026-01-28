@@ -276,6 +276,25 @@ export default function AdminPage() {
     }
   };
 
+  const fetchLiveGameNow = async () => {
+    setLoading(true);
+    setMessage('🔄 Fetching live game data from AHL...');
+    try {
+      const response = await fetch('/api/auto-update-live-game');
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
     setMessage('🔄 Updating EVERYTHING (games, news, player stats, and team stats)...');
@@ -508,11 +527,36 @@ export default function AdminPage() {
             </div>
           </div>
 
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg shadow-lg border-4 border-blue-500 mb-6">
+            <h2 className="text-2xl font-black text-blue-700 mb-4 uppercase flex items-center space-x-2">
+              <span>⚡</span>
+              <span>Automatic Live Game Updates</span>
+            </h2>
+            <div className="bg-white p-4 rounded-lg border-2 border-blue-300 mb-4">
+              <p className="text-sm text-gray-700 font-bold mb-3">
+                🤖 <strong>Auto-Update is ON!</strong> The Game Day page automatically fetches live scores from the AHL every 30 seconds.
+              </p>
+              <p className="text-xs text-gray-600 mb-3">
+                No manual entry needed - scores, shots, and penalties update automatically during games!
+              </p>
+              <button
+                onClick={fetchLiveGameNow}
+                disabled={loading}
+                className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all"
+              >
+                {loading ? '⏳ Fetching...' : '🔄 FETCH LIVE DATA NOW'}
+              </button>
+            </div>
+          </div>
+
           <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-lg shadow-lg border-4 border-red-500 mb-6">
             <h2 className="text-2xl font-black text-red-700 mb-4 uppercase flex items-center space-x-2">
               <span>🏒</span>
-              <span>Live Game Management</span>
+              <span>Manual Game Control (Override)</span>
             </h2>
+            <p className="text-xs text-gray-600 mb-4 font-bold">
+              Use this only if you need to manually override the automatic updates
+            </p>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
