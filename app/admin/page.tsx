@@ -13,6 +13,20 @@ export default function AdminPage() {
   const [message, setMessage] = useState('');
   const { user } = useAuth();
 
+  // Live game state
+  const [liveGameData, setLiveGameData] = useState({
+    homeTeam: 'Texas Stars',
+    awayTeam: '',
+    homeScore: 0,
+    awayScore: 0,
+    period: '1st Period',
+    timeRemaining: '20:00',
+    homeShotsOnGoal: 0,
+    awayShotsOnGoal: 0,
+    isLive: true,
+    gameStatus: 'In Progress'
+  });
+
   // Check if user is admin
   const isAdmin = user?.email === ADMIN_EMAIL;
 
@@ -162,9 +176,109 @@ export default function AdminPage() {
     }
   };
 
+  const autoUpdateTeamStats = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating team stats...');
+    try {
+      const response = await fetch('/api/update-team-stats', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateLiveGame = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating live game...');
+    try {
+      const response = await fetch('/api/update-live-game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(liveGameData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearPenalties = async () => {
+    setLoading(true);
+    setMessage('🔄 Clearing penalties...');
+    try {
+      const response = await fetch('/api/clear-penalties', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const endLiveGame = async () => {
+    setLoading(true);
+    setMessage('🔄 Ending live game...');
+    try {
+      const response = await fetch('/api/update-live-game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...liveGameData,
+          isLive: false,
+          gameStatus: 'Final'
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ Game ended successfully`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
-    setMessage('🔄 Updating EVERYTHING (games, news, and player stats)...');
+    setMessage('🔄 Updating EVERYTHING (games, news, player stats, and team stats)...');
     try {
       // Update games and news
       const gamesResponse = await fetch('/api/update-stars-data', {
@@ -178,10 +292,16 @@ export default function AdminPage() {
       });
       const statsData = await statsResponse.json();
 
-      if (gamesData.success && statsData.success) {
-        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message}`);
+      // Update team stats
+      const teamResponse = await fetch('/api/update-team-stats', {
+        method: 'POST',
+      });
+      const teamData = await teamResponse.json();
+
+      if (gamesData.success && statsData.success && teamData.success) {
+        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message} + Team stats updated`);
       } else {
-        setMessage(`❌ Error: ${gamesData.error || statsData.error}`);
+        setMessage(`❌ Error: ${gamesData.error || statsData.error || teamData.error}`);
       }
     } catch (error: any) {
       setMessage(`❌ Error: ${error.message}`);
@@ -309,23 +429,30 @@ export default function AdminPage() {
               {loading ? '⏳ Updating...' : '🔄 AUTO-UPDATE EVERYTHING'}
             </button>
             <p className="text-sm text-gray-600 text-center font-semibold mb-4">
-              Updates ALL data: games, news, AND player stats in one click!
+              Updates ALL data: games, news, player stats, AND team stats in one click!
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={autoUpdateStarsData}
                 disabled={loading}
-                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-sm transition-all"
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
               >
                 {loading ? '⏳' : '🏒'} Games & News
               </button>
               <button
                 onClick={autoUpdatePlayerStats}
                 disabled={loading}
-                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-sm transition-all"
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
               >
                 {loading ? '⏳' : '📊'} Player Stats
+              </button>
+              <button
+                onClick={autoUpdateTeamStats}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
+              >
+                {loading ? '⏳' : '🏆'} Team Stats
               </button>
             </div>
             <p className="text-xs text-gray-500 text-center mt-3">
@@ -381,6 +508,122 @@ export default function AdminPage() {
             </div>
           </div>
 
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-lg shadow-lg border-4 border-red-500 mb-6">
+            <h2 className="text-2xl font-black text-red-700 mb-4 uppercase flex items-center space-x-2">
+              <span>🏒</span>
+              <span>Live Game Management</span>
+            </h2>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Away Team</label>
+                <input
+                  type="text"
+                  value={liveGameData.awayTeam}
+                  onChange={(e) => setLiveGameData({...liveGameData, awayTeam: e.target.value})}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-bold"
+                  placeholder="Opponent Name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Period</label>
+                <select
+                  value={liveGameData.period}
+                  onChange={(e) => setLiveGameData({...liveGameData, period: e.target.value})}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-bold"
+                >
+                  <option>1st Period</option>
+                  <option>2nd Period</option>
+                  <option>3rd Period</option>
+                  <option>OT</option>
+                  <option>SO</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Texas Stars Score</label>
+                <input
+                  type="number"
+                  value={liveGameData.homeScore}
+                  onChange={(e) => setLiveGameData({...liveGameData, homeScore: parseInt(e.target.value) || 0})}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-bold text-2xl text-center"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Opponent Score</label>
+                <input
+                  type="number"
+                  value={liveGameData.awayScore}
+                  onChange={(e) => setLiveGameData({...liveGameData, awayScore: parseInt(e.target.value) || 0})}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-bold text-2xl text-center"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Texas Stars SOG</label>
+                <input
+                  type="number"
+                  value={liveGameData.homeShotsOnGoal}
+                  onChange={(e) => setLiveGameData({...liveGameData, homeShotsOnGoal: parseInt(e.target.value) || 0})}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-bold text-xl text-center"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Opponent SOG</label>
+                <input
+                  type="number"
+                  value={liveGameData.awayShotsOnGoal}
+                  onChange={(e) => setLiveGameData({...liveGameData, awayShotsOnGoal: parseInt(e.target.value) || 0})}
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-bold text-xl text-center"
+                />
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-bold text-gray-700 mb-1">Time Remaining</label>
+              <input
+                type="text"
+                value={liveGameData.timeRemaining}
+                onChange={(e) => setLiveGameData({...liveGameData, timeRemaining: e.target.value})}
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-bold text-center text-xl"
+                placeholder="20:00"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <button
+                onClick={updateLiveGame}
+                disabled={loading}
+                className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all border-2 border-red-800"
+              >
+                {loading ? '⏳ Updating...' : '🔴 UPDATE LIVE GAME'}
+              </button>
+              <button
+                onClick={endLiveGame}
+                disabled={loading}
+                className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all"
+              >
+                {loading ? '⏳' : '⏹️ END GAME'}
+              </button>
+            </div>
+
+            <button
+              onClick={clearPenalties}
+              disabled={loading}
+              className="w-full px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-black uppercase tracking-wider transition-all"
+            >
+              {loading ? '⏳ Clearing...' : '🗑️ CLEAR ALL PENALTIES'}
+            </button>
+
+            <p className="text-xs text-gray-600 text-center mt-4 font-bold">
+              Updates appear instantly on the Game Day page
+            </p>
+          </div>
+
           <div className="bg-white p-6 rounded-lg shadow-lg border-4 border-black">
             <h2 className="text-2xl font-black text-black mb-4 uppercase">What Auto-Update Does</h2>
             <div className="space-y-4">
@@ -390,7 +633,7 @@ export default function AdminPage() {
                   <span>REAL-TIME AUTO-UPDATE</span>
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1 ml-6">
-                  <li>• Updates games, news, AND player stats automatically</li>
+                  <li>• Updates games, news, player stats, AND team stats automatically</li>
                   <li>• Fetches latest data from official sources</li>
                   <li>• Removes outdated information automatically</li>
                   <li>• No manual data entry needed!</li>
@@ -450,8 +693,25 @@ export default function AdminPage() {
                   <li>• 16 forwards, 8 defensemen, 2 goalies</li>
                   <li>• Accurate jersey numbers and positions</li>
                   <li>• Includes goals, assists, points, +/-, PIM, games played</li>
+                  <li>• Goalie stats: SV%, GAA, W-L-OTL, shutouts, saves</li>
                   <li>• Stats updated as of current season</li>
                   <li>• Players can be compared side-by-side on Stats page</li>
+                </ul>
+              </div>
+              <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-500">
+                <h3 className="font-black text-yellow-700 mb-2 flex items-center space-x-2">
+                  <span>🏆</span>
+                  <span>TEAM STATS (2025-26 SEASON)</span>
+                </h3>
+                <ul className="text-sm text-gray-700 space-y-1 ml-6">
+                  <li>• Overall team record (wins-losses-OT losses)</li>
+                  <li>• Total points and standings position</li>
+                  <li>• Home and away records</li>
+                  <li>• Current winning/losing streak</li>
+                  <li>• Goals for and goals against</li>
+                  <li>• Goal differential (+/-)</li>
+                  <li>• Updated automatically with latest results</li>
+                  <li>• Displayed at top of Stats page</li>
                 </ul>
               </div>
             </div>

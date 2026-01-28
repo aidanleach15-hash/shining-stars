@@ -28,8 +28,23 @@ interface PlayerStats {
   shotsAgainst?: number;
 }
 
+interface TeamStats {
+  id: string;
+  wins: number;
+  losses: number;
+  overtimeLosses: number;
+  points: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  homeRecord: string;
+  awayRecord: string;
+  streak: string;
+  lastUpdated: string;
+}
+
 export default function StatsPage() {
   const [players, setPlayers] = useState<PlayerStats[]>([]);
+  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<keyof PlayerStats>('points');
 
@@ -42,6 +57,22 @@ export default function StatsPage() {
         ...doc.data()
       } as PlayerStats));
       setPlayers(playersData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'teamStats'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const teamData = {
+          id: snapshot.docs[0].id,
+          ...snapshot.docs[0].data()
+        } as TeamStats;
+        setTeamStats(teamData);
+      }
     });
 
     return () => unsubscribe();
@@ -93,6 +124,50 @@ export default function StatsPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4">
+          {/* Team Stats */}
+          {teamStats && (
+            <div className="bg-gradient-to-r from-black to-gray-900 p-6 rounded-lg shadow-xl border-4 border-white mb-6">
+              <h2 className="text-3xl font-black text-white text-center uppercase mb-4">
+                🏆 2025-26 Season Team Stats
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-lg p-4 text-center border-2 border-green-500">
+                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Record</div>
+                  <div className="text-2xl font-black text-black">
+                    {teamStats.wins}-{teamStats.losses}-{teamStats.overtimeLosses}
+                  </div>
+                  <div className="text-xs font-bold text-gray-500 mt-1">{teamStats.points} PTS</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center border-2 border-blue-500">
+                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Home</div>
+                  <div className="text-xl font-black text-blue-600">{teamStats.homeRecord}</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center border-2 border-orange-500">
+                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Away</div>
+                  <div className="text-xl font-black text-orange-600">{teamStats.awayRecord}</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center border-2 border-purple-500">
+                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Streak</div>
+                  <div className="text-xl font-black text-purple-600">{teamStats.streak}</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center border-2 border-green-500">
+                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Goals For</div>
+                  <div className="text-2xl font-black text-green-600">{teamStats.goalsFor}</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center border-2 border-red-500">
+                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Goals Against</div>
+                  <div className="text-2xl font-black text-red-600">{teamStats.goalsAgainst}</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 text-center border-2 border-yellow-500 col-span-2">
+                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Goal Differential</div>
+                  <div className={`text-2xl font-black ${(teamStats.goalsFor - teamStats.goalsAgainst) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(teamStats.goalsFor - teamStats.goalsAgainst) >= 0 ? '+' : ''}{teamStats.goalsFor - teamStats.goalsAgainst}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Instructions */}
           <div className="bg-white p-4 rounded-lg shadow-lg border-4 border-black mb-6">
             <p className="text-center font-bold text-black">
