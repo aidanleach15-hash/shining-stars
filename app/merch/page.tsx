@@ -161,15 +161,15 @@ export default function MerchPage() {
           {/* Official Store Link */}
           <div className="mt-6 sm:mt-8 text-center">
             <a
-              href="https://www.fanatics.com/ahl/texas-stars/o-4554+t-47984208+z-9738072779-2030038905"
+              href="https://texasstarsshop.com"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-green-700 rounded-xl hover:bg-gray-100 font-black border-2 sm:border-4 border-black text-base sm:text-xl shadow-2xl transform hover:scale-105 transition-all"
             >
-              🏒 SHOP ALL TEXAS STARS GEAR
+              🏒 VISIT TEXAS STARS OFFICIAL SHOP
             </a>
             <p className="text-white text-xs sm:text-sm mt-3 font-bold">
-              Official Texas Stars merchandise from Fanatics
+              Official Texas Stars merchandise • texasstarsshop.com
             </p>
           </div>
         </div>
