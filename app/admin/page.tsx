@@ -295,6 +295,25 @@ export default function AdminPage() {
     }
   };
 
+  const fetchMerch = async () => {
+    setLoading(true);
+    setMessage('🔄 Fetching merchandise...');
+    try {
+      const response = await fetch('/api/fetch-merch');
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
     setMessage('🔄 Updating EVERYTHING (games, news, player stats, and team stats)...');
@@ -451,7 +470,7 @@ export default function AdminPage() {
               Updates ALL data: games, news, player stats, AND team stats in one click!
             </p>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <button
                 onClick={autoUpdateStarsData}
                 disabled={loading}
@@ -472,6 +491,13 @@ export default function AdminPage() {
                 className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
               >
                 {loading ? '⏳' : '🏆'} Team Stats
+              </button>
+              <button
+                onClick={fetchMerch}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
+              >
+                {loading ? '⏳' : '🛍️'} Merch
               </button>
             </div>
             <p className="text-xs text-gray-500 text-center mt-3">
