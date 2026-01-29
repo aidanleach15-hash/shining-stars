@@ -38,13 +38,16 @@ export default function NewsPage() {
     seconds: 0,
   });
 
-  // Auto-update betting odds on load
+  // Auto-update betting odds on load (silently, don't block page)
   useEffect(() => {
     const updateOdds = async () => {
       try {
-        await fetch('/api/update-betting-odds');
+        const response = await fetch('/api/update-betting-odds');
+        if (!response.ok) {
+          console.warn('Betting odds update failed, using defaults');
+        }
       } catch (error) {
-        console.error('Error updating betting odds:', error);
+        console.warn('Error updating betting odds, using defaults:', error);
       }
     };
 

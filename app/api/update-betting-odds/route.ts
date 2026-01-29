@@ -2,6 +2,39 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, query, getDocs, updateDoc, doc, where } from 'firebase/firestore';
 
+// Helper function to update games with default odds
+async function updateGamesWithDefaultOdds() {
+  const gamesQuery = query(collection(db, 'games'));
+  const gamesSnapshot = await getDocs(gamesQuery);
+
+  let updatedCount = 0;
+  for (const gameDoc of gamesSnapshot.docs) {
+    const game = gameDoc.data();
+
+    const defaultOdds = {
+      starsMoneyline: game.isHome ? "-140" : "+110",
+      opponentMoneyline: game.isHome ? "+120" : "-130",
+      overUnder: "5.5",
+      spread: game.isHome ? "-1.5" : "+1.5"
+    };
+
+    await updateDoc(doc(db, 'games', gameDoc.id), {
+      bettingOdds: defaultOdds
+    });
+    updatedCount++;
+  }
+
+  return NextResponse.json({
+    success: true,
+    message: `Updated ${updatedCount} games with default betting odds (API unavailable)`,
+    starsStats: {
+      winPct: 'N/A',
+      avgGoalsFor: 'N/A',
+      avgGoalsAgainst: 'N/A'
+    }
+  });
+}
+
 export async function GET() {
   try {
     // Fetch AHL team statistics
@@ -11,8 +44,33 @@ export async function GET() {
       throw new Error('Failed to fetch AHL stats');
     }
 
-    const statsData = await statsResponse.json();
+    // Get response as text first to check for issues
+    let responseText = await statsResponse.text();
+
+    // Check if response is JSONP (has callback wrapper) and strip it
+    if (responseText.trim().startsWith('(') || /^[\w]+\(/.test(responseText)) {
+      // Strip JSONP callback wrapper: callback_name({...}) -> {...}
+      responseText = responseText.replace(/^[\w]+\(/, '').replace(/\);?\s*$/, '');
+    }
+
+    let statsData;
+    try {
+      statsData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Response text (first 200 chars):', responseText.substring(0, 200));
+
+      // Use default values if API fails
+      console.log('Using default betting odds due to API error');
+      return await updateGamesWithDefaultOdds();
+    }
+
     const teams = statsData?.SiteKit?.Statviewtype || [];
+
+    if (!teams || teams.length === 0) {
+      console.log('No teams data found, using default odds');
+      return await updateGamesWithDefaultOdds();
+    }
 
     // Find Texas Stars stats
     const texasStarsStats = teams.find((team: any) =>
@@ -137,9 +195,15 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error('Error updating betting odds:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+
+    // Try to update with default odds on error
+    try {
+      return await updateGamesWithDefaultOdds();
+    } catch (fallbackError) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
+    }
   }
 }
