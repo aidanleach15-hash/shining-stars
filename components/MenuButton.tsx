@@ -72,13 +72,6 @@ export default function MenuButton() {
             🏒 GAME DAY
           </Link>
           <Link
-            href="/merch"
-            onClick={() => setIsMenuOpen(false)}
-            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
-          >
-            🛍️ MERCH
-          </Link>
-          <Link
             href="/live-chat"
             onClick={() => setIsMenuOpen(false)}
             className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
