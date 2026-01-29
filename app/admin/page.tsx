@@ -63,7 +63,13 @@ export default function AdminPage() {
         location: "H-E-B Center at Cedar Park",
         isHome: true,
         date: gameDate,
-        time: "7:00 PM CT"
+        time: "7:00 PM CT",
+        bettingOdds: {
+          starsMoneyline: "-150",
+          opponentMoneyline: "+130",
+          overUnder: "5.5",
+          spread: "-1.5"
+        }
       });
 
       setMessage('✅ Next game added successfully! (Jan 30 vs Henderson)');

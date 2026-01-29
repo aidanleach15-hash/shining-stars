@@ -12,6 +12,12 @@ interface Game {
   isHome: boolean;
   date: any;
   time: string;
+  bettingOdds?: {
+    starsMoneyline: string;
+    opponentMoneyline: string;
+    overUnder: string;
+    spread: string;
+  };
 }
 
 interface Headline {
@@ -160,7 +166,7 @@ export default function NewsPage() {
               </div>
 
               {/* Game Details */}
-              <div className="bg-white rounded-lg p-6 border-3 border-white">
+              <div className="bg-white rounded-lg p-6 border-3 border-white mb-4">
                 <div className="text-center">
                   <h3 className="text-3xl font-black text-black mb-3 uppercase">
                     TEXAS STARS vs {nextGame.opponent}
@@ -178,6 +184,65 @@ export default function NewsPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Betting Odds */}
+              {nextGame.bettingOdds && (
+                <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg p-6 border-4 border-yellow-300 shadow-xl">
+                  <div className="text-center mb-4">
+                    <h3 className="text-2xl font-black text-black uppercase tracking-wide flex items-center justify-center gap-2">
+                      <span className="text-3xl">💰</span>
+                      BETTING ODDS
+                      <span className="text-3xl">💰</span>
+                    </h3>
+                    <p className="text-sm font-bold text-black/70 mt-1">Latest lines and spreads</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Moneyline */}
+                    <div className="bg-white rounded-lg p-4 border-3 border-black shadow-md">
+                      <div className="text-center mb-3">
+                        <div className="text-sm font-black text-gray-600 uppercase tracking-wide">Moneyline</div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between bg-green-50 rounded p-2 border-2 border-green-500">
+                          <span className="font-black text-green-700 text-sm">STARS</span>
+                          <span className="font-black text-black text-lg">{nextGame.bettingOdds.starsMoneyline}</span>
+                        </div>
+                        <div className="flex items-center justify-between bg-gray-50 rounded p-2 border-2 border-gray-300">
+                          <span className="font-bold text-gray-700 text-sm">{nextGame.opponent}</span>
+                          <span className="font-black text-black text-lg">{nextGame.bettingOdds.opponentMoneyline}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Over/Under */}
+                    <div className="bg-white rounded-lg p-4 border-3 border-black shadow-md">
+                      <div className="text-center mb-3">
+                        <div className="text-sm font-black text-gray-600 uppercase tracking-wide">Over/Under</div>
+                      </div>
+                      <div className="flex items-center justify-center h-16">
+                        <span className="font-black text-black text-3xl">{nextGame.bettingOdds.overUnder}</span>
+                      </div>
+                      <div className="text-center text-xs font-bold text-gray-500 mt-2">Total Goals</div>
+                    </div>
+
+                    {/* Puck Line */}
+                    <div className="bg-white rounded-lg p-4 border-3 border-black shadow-md">
+                      <div className="text-center mb-3">
+                        <div className="text-sm font-black text-gray-600 uppercase tracking-wide">Puck Line</div>
+                      </div>
+                      <div className="flex items-center justify-center h-16">
+                        <span className="font-black text-black text-3xl">{nextGame.bettingOdds.spread}</span>
+                      </div>
+                      <div className="text-center text-xs font-bold text-gray-500 mt-2">Spread</div>
+                    </div>
+                  </div>
+
+                  <div className="text-center mt-4 text-xs font-bold text-black/60">
+                    ⚠️ Please gamble responsibly • 21+ only
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow-lg p-8 text-center border-4 border-black">
