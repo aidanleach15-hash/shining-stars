@@ -108,19 +108,28 @@ export default function MerchPage() {
               {filteredItems.map(item => (
                 <div key={item.id} className="bg-white rounded-lg shadow-xl border-2 sm:border-4 border-black overflow-hidden hover:shadow-2xl transition-all transform hover:scale-105">
                   {/* Product Image */}
-                  <div className="relative h-48 sm:h-64 bg-gray-100">
+                  <div className="relative h-48 sm:h-64 bg-white">
                     {item.image ? (
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-2"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-6xl sm:text-8xl">⭐</span>
-                      </div>
-                    )}
-                    <div className="absolute top-2 right-2 bg-green-600 text-white px-2 sm:px-3 py-1 rounded-full font-black text-xs sm:text-sm">
+                    ) : null}
+                    <div
+                      className="w-full h-full items-center justify-center absolute top-0 left-0"
+                      style={{display: item.image ? 'none' : 'flex'}}
+                    >
+                      <span className="text-6xl sm:text-8xl">⭐</span>
+                    </div>
+                    <div className="absolute top-2 right-2 bg-green-600 text-white px-2 sm:px-3 py-1 rounded-full font-black text-xs sm:text-sm shadow-lg">
                       {item.category}
                     </div>
                   </div>
@@ -152,13 +161,16 @@ export default function MerchPage() {
           {/* Official Store Link */}
           <div className="mt-6 sm:mt-8 text-center">
             <a
-              href="https://texasstarsshop.com"
+              href="https://www.fanatics.com/ahl/texas-stars/o-4554+t-47984208+z-9738072779-2030038905"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block px-6 sm:px-8 py-3 sm:py-4 bg-white text-green-700 rounded-xl hover:bg-gray-100 font-black border-2 sm:border-4 border-black text-base sm:text-xl shadow-2xl transform hover:scale-105 transition-all"
             >
-              🏒 VISIT OFFICIAL STORE
+              🏒 SHOP ALL TEXAS STARS GEAR
             </a>
+            <p className="text-white text-xs sm:text-sm mt-3 font-bold">
+              Official Texas Stars merchandise from Fanatics
+            </p>
           </div>
         </div>
       </div>
