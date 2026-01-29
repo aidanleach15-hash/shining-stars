@@ -72,6 +72,90 @@ export default function MenuButton() {
             🏒 GAME DAY
           </Link>
           <Link
+            href="/schedule"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            📅 SCHEDULE
+          </Link>
+          <Link
+            href="/standings"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            🏆 STANDINGS
+          </Link>
+          <Link
+            href="/roster"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            👥 ROSTER
+          </Link>
+          <Link
+            href="/predictions"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            🎯 PREDICTIONS
+          </Link>
+          <Link
+            href="/leaderboard"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            🏅 LEADERBOARD
+          </Link>
+          <Link
+            href="/recaps"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            📝 RECAPS
+          </Link>
+          <Link
+            href="/highlights"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            🎥 HIGHLIGHTS
+          </Link>
+          <Link
+            href="/head-to-head"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            ⚔️ H2H
+          </Link>
+          <Link
+            href="/arena"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            🏟️ ARENA
+          </Link>
+          <Link
+            href="/tickets"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            🎟️ TICKETS
+          </Link>
+          <Link
+            href="/social"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            📱 SOCIAL
+          </Link>
+          <Link
+            href="/trivia"
+            onClick={() => setIsMenuOpen(false)}
+            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
+          >
+            🧠 TRIVIA
+          </Link>
+          <Link
             href="/live-chat"
             onClick={() => setIsMenuOpen(false)}
             className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
