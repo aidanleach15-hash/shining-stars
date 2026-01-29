@@ -37,28 +37,71 @@ async function updateGamesWithDefaultOdds() {
 
 export async function GET() {
   try {
-    // Fetch AHL team statistics
-    const statsResponse = await fetch('https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=teams&key=50c2cd9b5e18e390&fmt=json&client_code=ahl&lang=en&league_code=&season_id=79&first=0&limit=100&sort=win_pct&stat=standings&order_direction=DESC');
+    // Fetch AHL team statistics with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+    const statsResponse = await fetch(
+      'https://lscluster.hockeytech.com/feed/?feed=modulekit&view=statviewtype&type=teams&key=50c2cd9b5e18e390&fmt=json&client_code=ahl&lang=en&league_code=&season_id=79&first=0&limit=100&sort=win_pct&stat=standings&order_direction=DESC',
+      {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        }
+      }
+    );
+    clearTimeout(timeoutId);
 
     if (!statsResponse.ok) {
+      console.error('AHL API returned status:', statsResponse.status);
       throw new Error('Failed to fetch AHL stats');
     }
 
     // Get response as text first to check for issues
     let responseText = await statsResponse.text();
 
-    // Check if response is JSONP (has callback wrapper) and strip it
-    if (responseText.trim().startsWith('(') || /^[\w]+\(/.test(responseText)) {
-      // Strip JSONP callback wrapper: callback_name({...}) -> {...}
-      responseText = responseText.replace(/^[\w]+\(/, '').replace(/\);?\s*$/, '');
+    // Remove BOM and other invisible characters
+    responseText = responseText.replace(/^\uFEFF/, ''); // Remove BOM
+    responseText = responseText.replace(/^\s+/, ''); // Remove leading whitespace
+    responseText = responseText.replace(/\s+$/, ''); // Remove trailing whitespace
+
+    // Log the first few characters to debug
+    console.log('Response starts with:', responseText.substring(0, 50));
+    console.log('First char code:', responseText.charCodeAt(0));
+
+    // Strip JSONP/callback wrappers: callback(...), var x = ..., etc.
+    // Common patterns: "callback({...})", "var data = {...}", "({...})"
+
+    // Check for variable declarations
+    if (responseText.match(/^(var|const|let)\s/)) {
+      responseText = responseText.replace(/^(var|const|let)\s+\w+\s*=\s*/, '');
     }
+
+    // Check for function call wrappers
+    const functionCallMatch = responseText.match(/^([\w$]+)\s*\(/);
+    if (functionCallMatch) {
+      // Remove function name and opening paren
+      responseText = responseText.substring(functionCallMatch[0].length);
+      // Remove closing paren and semicolon from end
+      responseText = responseText.replace(/\);?\s*$/, '');
+    }
+
+    // Check for parentheses wrapper
+    if (responseText.startsWith('(') && responseText.endsWith(')')) {
+      responseText = responseText.substring(1, responseText.length - 1);
+    }
+
+    // Remove trailing semicolons and whitespace again
+    responseText = responseText.replace(/;+\s*$/, '').trim();
 
     let statsData;
     try {
       statsData = JSON.parse(responseText);
     } catch (parseError) {
       console.error('JSON Parse Error:', parseError);
-      console.error('Response text (first 200 chars):', responseText.substring(0, 200));
+      console.error('Response text (first 300 chars):', responseText.substring(0, 300));
+      console.error('Response text (last 100 chars):', responseText.substring(Math.max(0, responseText.length - 100)));
 
       // Use default values if API fails
       console.log('Using default betting odds due to API error');
