@@ -108,59 +108,59 @@ export default function StatsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen py-8" style={{backgroundColor: '#007A33'}}>
+      <div className="min-h-screen py-4 sm:py-8" style={{backgroundColor: '#007A33'}}>
         {/* Header */}
-        <div className="max-w-7xl mx-auto mb-8 text-center px-4">
-          <div className="text-7xl mb-2">📊🏒</div>
-          <h1 className="text-6xl font-black text-black mb-3 tracking-wider" style={{
+        <div className="max-w-7xl mx-auto mb-4 sm:mb-8 text-center px-2 sm:px-4 mt-16 sm:mt-0">
+          <div className="text-5xl sm:text-7xl mb-2">📊🏒</div>
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-black mb-2 sm:mb-3 tracking-wider px-2" style={{
             fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
             textTransform: 'uppercase',
-            letterSpacing: '0.15em',
+            letterSpacing: '0.1em',
             textShadow: '-2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff, -2px 0 0 #fff, 2px 0 0 #fff, 0 -2px 0 #fff, 0 2px 0 #fff'
           }}>
             PLAYER STATS
           </h1>
-          <p className="text-xl font-black text-white tracking-wide">COMPARE THE STARS</p>
+          <p className="text-lg sm:text-xl font-black text-white tracking-wide">COMPARE THE STARS</p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
           {/* Team Stats */}
           {teamStats && (
-            <div className="bg-gradient-to-r from-black to-gray-900 p-6 rounded-lg shadow-xl border-4 border-white mb-6">
-              <h2 className="text-3xl font-black text-white text-center uppercase mb-4">
+            <div className="bg-gradient-to-r from-black to-gray-900 p-3 sm:p-6 rounded-lg shadow-xl border-2 sm:border-4 border-white mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white text-center uppercase mb-3 sm:mb-4">
                 🏆 2025-26 Season Team Stats
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg p-4 text-center border-2 border-green-500">
-                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Record</div>
-                  <div className="text-2xl font-black text-black">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+                <div className="bg-white rounded-lg p-2 sm:p-4 text-center border border-green-500">
+                  <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase mb-1">Record</div>
+                  <div className="text-lg sm:text-xl md:text-2xl font-black text-black">
                     {teamStats.wins}-{teamStats.losses}-{teamStats.overtimeLosses}
                   </div>
                   <div className="text-xs font-bold text-gray-500 mt-1">{teamStats.points} PTS</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 text-center border-2 border-blue-500">
-                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Home</div>
-                  <div className="text-xl font-black text-blue-600">{teamStats.homeRecord}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-4 text-center border border-blue-500">
+                  <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase mb-1">Home</div>
+                  <div className="text-base sm:text-lg md:text-xl font-black text-blue-600">{teamStats.homeRecord}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 text-center border-2 border-orange-500">
-                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Away</div>
-                  <div className="text-xl font-black text-orange-600">{teamStats.awayRecord}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-4 text-center border border-orange-500">
+                  <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase mb-1">Away</div>
+                  <div className="text-base sm:text-lg md:text-xl font-black text-orange-600">{teamStats.awayRecord}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 text-center border-2 border-purple-500">
-                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Streak</div>
-                  <div className="text-xl font-black text-purple-600">{teamStats.streak}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-4 text-center border border-purple-500">
+                  <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase mb-1">Streak</div>
+                  <div className="text-base sm:text-lg md:text-xl font-black text-purple-600">{teamStats.streak}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 text-center border-2 border-green-500">
-                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Goals For</div>
-                  <div className="text-2xl font-black text-green-600">{teamStats.goalsFor}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-4 text-center border border-green-500">
+                  <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase mb-1">Goals For</div>
+                  <div className="text-lg sm:text-xl md:text-2xl font-black text-green-600">{teamStats.goalsFor}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 text-center border-2 border-red-500">
-                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Goals Against</div>
-                  <div className="text-2xl font-black text-red-600">{teamStats.goalsAgainst}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-4 text-center border border-red-500">
+                  <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase mb-1">Goals Against</div>
+                  <div className="text-lg sm:text-xl md:text-2xl font-black text-red-600">{teamStats.goalsAgainst}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 text-center border-2 border-yellow-500 col-span-2">
-                  <div className="text-sm font-bold text-gray-600 uppercase mb-1">Goal Differential</div>
-                  <div className={`text-2xl font-black ${(teamStats.goalsFor - teamStats.goalsAgainst) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className="bg-white rounded-lg p-2 sm:p-4 text-center border border-yellow-500 col-span-2">
+                  <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase mb-1">Goal Differential</div>
+                  <div className={`text-lg sm:text-xl md:text-2xl font-black ${(teamStats.goalsFor - teamStats.goalsAgainst) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {(teamStats.goalsFor - teamStats.goalsAgainst) >= 0 ? '+' : ''}{teamStats.goalsFor - teamStats.goalsAgainst}
                   </div>
                 </div>
