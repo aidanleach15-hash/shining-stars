@@ -38,6 +38,19 @@ export default function NewsPage() {
     seconds: 0,
   });
 
+  // Auto-update betting odds on load
+  useEffect(() => {
+    const updateOdds = async () => {
+      try {
+        await fetch('/api/update-betting-odds');
+      } catch (error) {
+        console.error('Error updating betting odds:', error);
+      }
+    };
+
+    updateOdds();
+  }, []);
+
   // Fetch next game
   useEffect(() => {
     const q = query(

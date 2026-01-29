@@ -63,16 +63,13 @@ export default function AdminPage() {
         location: "H-E-B Center at Cedar Park",
         isHome: true,
         date: gameDate,
-        time: "7:00 PM CT",
-        bettingOdds: {
-          starsMoneyline: "-150",
-          opponentMoneyline: "+130",
-          overUnder: "5.5",
-          spread: "-1.5"
-        }
+        time: "7:00 PM CT"
       });
 
-      setMessage('✅ Next game added successfully! (Jan 30 vs Henderson)');
+      // Auto-update betting odds after adding game
+      await fetch('/api/update-betting-odds');
+
+      setMessage('✅ Next game added successfully with calculated betting odds! (Jan 30 vs Henderson)');
     } catch (error: any) {
       setMessage('❌ Error adding game: ' + error.message);
     } finally {
@@ -320,9 +317,28 @@ export default function AdminPage() {
     }
   };
 
+  const autoUpdateBettingOdds = async () => {
+    setLoading(true);
+    setMessage('🔄 Calculating betting odds from AHL stats...');
+    try {
+      const response = await fetch('/api/update-betting-odds');
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message} (Stars Win %: ${data.starsStats?.winPct}, Avg Goals For: ${data.starsStats?.avgGoalsFor})`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
-    setMessage('🔄 Updating EVERYTHING (games, news, player stats, and team stats)...');
+    setMessage('🔄 Updating EVERYTHING (games, news, player stats, team stats, and betting odds)...');
     try {
       // Update games and news
       const gamesResponse = await fetch('/api/update-stars-data', {
@@ -342,10 +358,14 @@ export default function AdminPage() {
       });
       const teamData = await teamResponse.json();
 
-      if (gamesData.success && statsData.success && teamData.success) {
-        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message} + Team stats updated`);
+      // Update betting odds
+      const oddsResponse = await fetch('/api/update-betting-odds');
+      const oddsData = await oddsResponse.json();
+
+      if (gamesData.success && statsData.success && teamData.success && oddsData.success) {
+        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message} + Team stats updated + ${oddsData.message}`);
       } else {
-        setMessage(`❌ Error: ${gamesData.error || statsData.error || teamData.error}`);
+        setMessage(`❌ Error: ${gamesData.error || statsData.error || teamData.error || oddsData.error}`);
       }
     } catch (error: any) {
       setMessage(`❌ Error: ${error.message}`);
@@ -473,10 +493,10 @@ export default function AdminPage() {
               {loading ? '⏳ Updating...' : '🔄 AUTO-UPDATE EVERYTHING'}
             </button>
             <p className="text-sm text-gray-600 text-center font-semibold mb-4">
-              Updates ALL data: games, news, player stats, AND team stats in one click!
+              Updates ALL data: games, news, player stats, team stats, AND betting odds in one click!
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
               <button
                 onClick={autoUpdateStarsData}
                 disabled={loading}
@@ -499,6 +519,13 @@ export default function AdminPage() {
                 {loading ? '⏳' : '🏆'} Team Stats
               </button>
               <button
+                onClick={autoUpdateBettingOdds}
+                disabled={loading}
+                className="px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all border-2 border-yellow-600"
+              >
+                {loading ? '⏳' : '💰'} Betting Odds
+              </button>
+              <button
                 onClick={fetchMerch}
                 disabled={loading}
                 className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
@@ -507,7 +534,7 @@ export default function AdminPage() {
               </button>
             </div>
             <p className="text-xs text-gray-500 text-center mt-3">
-              Click individual buttons above to update specific data types
+              Click individual buttons above to update specific data types. Betting odds calculated from live AHL stats!
             </p>
           </div>
 
