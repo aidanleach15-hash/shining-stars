@@ -55,30 +55,58 @@ export default function NewsPage() {
     updateOdds();
   }, []);
 
-  // Fetch next game from schedule
+  // Fetch next game from schedule (with fallback to games collection)
   useEffect(() => {
-    const q = query(
+    // Try schedule collection first
+    const scheduleQuery = query(
       collection(db, 'schedule'),
       orderBy('date', 'asc')
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      // Find next scheduled game (future games only)
+    const unsubscribe = onSnapshot(scheduleQuery, (snapshot) => {
+      // Find next scheduled game (include games happening soon or today)
       const now = new Date();
+      const twoHoursAgo = new Date(now.getTime() - (2 * 60 * 60 * 1000)); // 2 hours ago
+
       const upcomingGames = snapshot.docs
         .map(doc => ({
           id: doc.id,
           ...doc.data()
         } as Game))
         .filter(game => {
+          if (game.status && game.status !== 'scheduled') return false;
+
           const gameDate = game.date?.toDate ? game.date.toDate() : new Date(game.date);
-          return gameDate > now && game.status === 'scheduled';
+          // Show games that haven't started yet or just started (within 2 hours)
+          return gameDate > twoHoursAgo;
+        })
+        .sort((a, b) => {
+          const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+          const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+          return dateA.getTime() - dateB.getTime();
         });
 
       if (upcomingGames.length > 0) {
         setNextGame(upcomingGames[0]);
       } else {
-        setNextGame(null);
+        // Fallback to games collection if schedule is empty
+        const gamesQuery = query(
+          collection(db, 'games'),
+          orderBy('date', 'asc'),
+          limit(1)
+        );
+
+        onSnapshot(gamesQuery, (gamesSnapshot) => {
+          if (!gamesSnapshot.empty) {
+            const gameData = gamesSnapshot.docs[0].data() as Game;
+            setNextGame({
+              ...gameData,
+              id: gamesSnapshot.docs[0].id,
+            });
+          } else {
+            setNextGame(null);
+          }
+        });
       }
     });
 
