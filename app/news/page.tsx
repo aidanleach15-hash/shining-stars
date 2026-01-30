@@ -12,6 +12,7 @@ interface Game {
   isHome: boolean;
   date: any;
   time: string;
+  status?: 'scheduled' | 'in_progress' | 'final';
   bettingOdds?: {
     starsMoneyline: string;
     opponentMoneyline: string;
@@ -54,21 +55,30 @@ export default function NewsPage() {
     updateOdds();
   }, []);
 
-  // Fetch next game
+  // Fetch next game from schedule
   useEffect(() => {
     const q = query(
-      collection(db, 'games'),
-      orderBy('date', 'asc'),
-      limit(1)
+      collection(db, 'schedule'),
+      orderBy('date', 'asc')
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const gameData = snapshot.docs[0].data() as Game;
-        setNextGame({
-          ...gameData,
-          id: snapshot.docs[0].id,
+      // Find next scheduled game (future games only)
+      const now = new Date();
+      const upcomingGames = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Game))
+        .filter(game => {
+          const gameDate = game.date?.toDate ? game.date.toDate() : new Date(game.date);
+          return gameDate > now && game.status === 'scheduled';
         });
+
+      if (upcomingGames.length > 0) {
+        setNextGame(upcomingGames[0]);
+      } else {
+        setNextGame(null);
       }
     });
 

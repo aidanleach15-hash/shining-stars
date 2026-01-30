@@ -58,19 +58,19 @@ export async function POST() {
       { date: new Date('2026-01-23T19:00:00'), opponent: 'ROCKFORD ICEHOGS', opponentAbbr: 'ROC', isHome: false, location: 'BMO Center', time: '7:00 PM CT', status: 'final' as const, starsScore: 5, opponentScore: 0 },
 
       // JANUARY 2026 - UPCOMING GAMES
-      { date: new Date('2026-01-30T20:00:00'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '8:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-01-31T20:00:00'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '8:00 PM ET', status: 'scheduled' as const },
+      { date: new Date('2026-01-31T01:00:00Z'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-02-01T01:00:00Z'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
 
       // FEBRUARY 2026
-      { date: new Date('2026-02-06T20:00:00'), opponent: 'MANITOBA MOOSE', opponentAbbr: 'MB', isHome: true, location: 'H-E-B Center at Cedar Park', time: '8:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-07T20:00:00'), opponent: 'MANITOBA MOOSE', opponentAbbr: 'MB', isHome: true, location: 'H-E-B Center at Cedar Park', time: '8:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-13T19:00:00'), opponent: 'GRAND RAPIDS GRIFFINS', opponentAbbr: 'GR', isHome: false, location: 'Van Andel Arena', time: '7:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-15T16:00:00'), opponent: 'GRAND RAPIDS GRIFFINS', opponentAbbr: 'GR', isHome: false, location: 'Van Andel Arena', time: '4:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-18T20:00:00'), opponent: 'MILWAUKEE ADMIRALS', opponentAbbr: 'MIL', isHome: false, location: 'UW-Milwaukee Panther Arena', time: '8:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-20T20:00:00'), opponent: 'MILWAUKEE ADMIRALS', opponentAbbr: 'MIL', isHome: false, location: 'UW-Milwaukee Panther Arena', time: '8:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-21T20:00:00'), opponent: 'CHICAGO WOLVES', opponentAbbr: 'CHI', isHome: false, location: 'Allstate Arena', time: '8:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-27T20:00:00'), opponent: 'SAN DIEGO GULLS', opponentAbbr: 'SD', isHome: true, location: 'H-E-B Center at Cedar Park', time: '8:00 PM ET', status: 'scheduled' as const },
-      { date: new Date('2026-02-28T20:00:00'), opponent: 'SAN DIEGO GULLS', opponentAbbr: 'SD', isHome: true, location: 'H-E-B Center at Cedar Park', time: '8:00 PM ET', status: 'scheduled' as const },
+      { date: new Date('2026-02-07T01:00:00Z'), opponent: 'MANITOBA MOOSE', opponentAbbr: 'MB', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-02-08T01:00:00Z'), opponent: 'MANITOBA MOOSE', opponentAbbr: 'MB', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-02-14T00:00:00Z'), opponent: 'GRAND RAPIDS GRIFFINS', opponentAbbr: 'GR', isHome: false, location: 'Van Andel Arena', time: '7:00 PM ET', status: 'scheduled' as const },
+      { date: new Date('2026-02-15T21:00:00Z'), opponent: 'GRAND RAPIDS GRIFFINS', opponentAbbr: 'GR', isHome: false, location: 'Van Andel Arena', time: '4:00 PM ET', status: 'scheduled' as const },
+      { date: new Date('2026-02-19T01:00:00Z'), opponent: 'MILWAUKEE ADMIRALS', opponentAbbr: 'MIL', isHome: false, location: 'UW-Milwaukee Panther Arena', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-02-21T01:00:00Z'), opponent: 'MILWAUKEE ADMIRALS', opponentAbbr: 'MIL', isHome: false, location: 'UW-Milwaukee Panther Arena', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-02-22T01:00:00Z'), opponent: 'CHICAGO WOLVES', opponentAbbr: 'CHI', isHome: false, location: 'Allstate Arena', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-02-28T01:00:00Z'), opponent: 'SAN DIEGO GULLS', opponentAbbr: 'SD', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-03-01T01:00:00Z'), opponent: 'SAN DIEGO GULLS', opponentAbbr: 'SD', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
 
       // MARCH 2026
       { date: new Date('2026-03-07T20:00:00'), opponent: 'CHICAGO WOLVES', opponentAbbr: 'CHI', isHome: false, location: 'Allstate Arena', time: '8:00 PM ET', status: 'scheduled' as const },
