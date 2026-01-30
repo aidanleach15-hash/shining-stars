@@ -336,9 +336,30 @@ export default function AdminPage() {
     }
   };
 
+  const autoUpdateRoster = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating roster with 2025-26 players...');
+    try {
+      const response = await fetch('/api/update-roster', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
-    setMessage('🔄 Updating EVERYTHING (games, news, player stats, team stats, and betting odds)...');
+    setMessage('🔄 Updating EVERYTHING (games, news, player stats, team stats, roster, and betting odds)...');
     try {
       // Update games and news
       const gamesResponse = await fetch('/api/update-stars-data', {
@@ -358,14 +379,20 @@ export default function AdminPage() {
       });
       const teamData = await teamResponse.json();
 
+      // Update roster
+      const rosterResponse = await fetch('/api/update-roster', {
+        method: 'POST',
+      });
+      const rosterData = await rosterResponse.json();
+
       // Update betting odds
       const oddsResponse = await fetch('/api/update-betting-odds');
       const oddsData = await oddsResponse.json();
 
-      if (gamesData.success && statsData.success && teamData.success && oddsData.success) {
-        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message} + Team stats updated + ${oddsData.message}`);
+      if (gamesData.success && statsData.success && teamData.success && rosterData.success && oddsData.success) {
+        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message} + Team stats updated + ${rosterData.message} + ${oddsData.message}`);
       } else {
-        setMessage(`❌ Error: ${gamesData.error || statsData.error || teamData.error || oddsData.error}`);
+        setMessage(`❌ Error: ${gamesData.error || statsData.error || teamData.error || rosterData.error || oddsData.error}`);
       }
     } catch (error: any) {
       setMessage(`❌ Error: ${error.message}`);
@@ -493,7 +520,7 @@ export default function AdminPage() {
               {loading ? '⏳ Updating...' : '🔄 AUTO-UPDATE EVERYTHING'}
             </button>
             <p className="text-sm text-gray-600 text-center font-semibold mb-4">
-              Updates ALL data: games, news, player stats, team stats, AND betting odds in one click!
+              Updates ALL data: games, news, player stats, team stats, roster, AND betting odds in one click!
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
@@ -517,6 +544,13 @@ export default function AdminPage() {
                 className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
               >
                 {loading ? '⏳' : '🏆'} Team Stats
+              </button>
+              <button
+                onClick={autoUpdateRoster}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
+              >
+                {loading ? '⏳' : '👥'} Roster
               </button>
               <button
                 onClick={autoUpdateBettingOdds}
