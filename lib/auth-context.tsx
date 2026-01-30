@@ -27,15 +27,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isGuest, setIsGuest] = useState(false);
+  const [isGuest, setIsGuest] = useState(() => {
+    // Initialize from localStorage
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('guest_mode') === 'true';
+    }
+    return false;
+  });
 
   useEffect(() => {
-    // Check for guest mode in localStorage
-    const guestMode = localStorage.getItem('guest_mode');
-    if (guestMode === 'true') {
-      setIsGuest(true);
-    }
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);

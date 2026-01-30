@@ -43,8 +43,6 @@ export default function MenuButton() {
     }
   };
 
-  const restrictedPages = ['/predictions', '/admin'];
-
   return (
     <div className="fixed top-4 left-4 z-50" ref={menuRef}>
       <button
