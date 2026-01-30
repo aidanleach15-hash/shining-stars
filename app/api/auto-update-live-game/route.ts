@@ -109,22 +109,45 @@ function findTexasStarsGame(data: any) {
       const homeTeam = game.home_team_name || '';
       const awayTeam = game.visiting_team_name || '';
 
-      if (homeTeam.includes('Texas Stars') || awayTeam.includes('Texas Stars')) {
-        const isTexasHome = homeTeam.includes('Texas Stars');
-        const gameStatus = game.game_status || '';
-        const isLive = gameStatus === 'In Progress' || gameStatus === 'Live';
+      if (homeTeam.includes('Texas') || awayTeam.includes('Texas')) {
+        const isTexasHome = homeTeam.includes('Texas');
+        const gameStatus = game.game_status || game.status || '';
+
+        // Detect if game is live - check multiple status indicators
+        const isLive =
+          gameStatus.toLowerCase().includes('in progress') ||
+          gameStatus.toLowerCase().includes('live') ||
+          gameStatus === 'InProgress' ||
+          gameStatus === '2' || // AHL API uses numeric codes
+          (game.period && parseInt(game.period) > 0 && parseInt(game.period) <= 5 && gameStatus !== 'Final');
+
+        // Parse period more accurately
+        let period = parsePeriod(game.period || game.current_period || '0');
+        if (gameStatus.toLowerCase().includes('final')) {
+          period = 'Final';
+        } else if (gameStatus.toLowerCase().includes('pregame')) {
+          period = 'Pregame';
+        } else if (!period || period === '0') {
+          period = gameStatus || 'Scheduled';
+        }
+
+        // Get time remaining - handle different formats
+        let timeRemaining = game.time_remaining || game.clock || '';
+        if (!timeRemaining && period !== 'Final' && period !== 'Pregame') {
+          timeRemaining = '20:00';
+        }
 
         return {
-          homeTeam: isTexasHome ? 'Texas Stars' : awayTeam,
-          awayTeam: isTexasHome ? awayTeam : 'Texas Stars',
-          homeScore: parseInt(game.home_goal_count) || 0,
-          awayScore: parseInt(game.visiting_goal_count) || 0,
-          period: parsePeriod(game.period || '1'),
-          timeRemaining: game.time_remaining || '20:00',
-          homeShotsOnGoal: parseInt(game.home_shots) || 0,
-          awayShotsOnGoal: parseInt(game.visiting_shots) || 0,
+          homeTeam: isTexasHome ? 'Texas Stars' : (awayTeam || 'Opponent'),
+          awayTeam: isTexasHome ? (awayTeam || 'Opponent') : 'Texas Stars',
+          homeScore: parseInt(game.home_goal_count || game.home_score || 0),
+          awayScore: parseInt(game.visiting_goal_count || game.visitor_score || game.away_score || 0),
+          period: period,
+          timeRemaining: timeRemaining,
+          homeShotsOnGoal: parseInt(game.home_shots || game.home_sog || 0),
+          awayShotsOnGoal: parseInt(game.visiting_shots || game.visitor_sog || game.away_sog || 0),
           isLive: isLive,
-          gameStatus: gameStatus
+          gameStatus: gameStatus || 'Unknown'
         };
       }
     }
@@ -137,11 +160,28 @@ function findTexasStarsGame(data: any) {
 }
 
 function parsePeriod(period: string): string {
+  if (!period) return '';
+
+  const periodStr = period.toLowerCase();
+
+  // Check for text periods first
+  if (periodStr.includes('1st') || periodStr === '1') return '1st Period';
+  if (periodStr.includes('2nd') || periodStr === '2') return '2nd Period';
+  if (periodStr.includes('3rd') || periodStr === '3') return '3rd Period';
+  if (periodStr.includes('ot') || periodStr === '4' || periodStr.includes('overtime')) return 'Overtime';
+  if (periodStr.includes('so') || periodStr === '5' || periodStr.includes('shootout')) return 'Shootout';
+  if (periodStr.includes('final')) return 'Final';
+  if (periodStr.includes('pregame') || periodStr === '0') return 'Pregame';
+
+  // Try to parse as number
   const periodNum = parseInt(period);
-  if (periodNum === 1) return '1st Period';
-  if (periodNum === 2) return '2nd Period';
-  if (periodNum === 3) return '3rd Period';
-  if (periodNum === 4) return 'OT';
-  if (periodNum === 5) return 'SO';
+  if (!isNaN(periodNum)) {
+    if (periodNum === 1) return '1st Period';
+    if (periodNum === 2) return '2nd Period';
+    if (periodNum === 3) return '3rd Period';
+    if (periodNum === 4) return 'Overtime';
+    if (periodNum === 5) return 'Shootout';
+  }
+
   return period;
 }
