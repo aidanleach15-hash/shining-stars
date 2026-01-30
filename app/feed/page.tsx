@@ -171,7 +171,7 @@ export default function FeedPage() {
             <div className="bg-white rounded-lg shadow-lg p-8 text-center border-4 border-black">
               <div className="text-5xl mb-3">🏒</div>
               <p className="text-gray-600 font-bold text-lg">No posts yet. Be the first to post!</p>
-              <p className="text-gray-500 mt-2">Let's get this fan feed started! ⭐</p>
+              <p className="text-gray-500 mt-2">Let&apos;s get this fan feed started! ⭐</p>
             </div>
           ) : (
             posts.map((post) => {
