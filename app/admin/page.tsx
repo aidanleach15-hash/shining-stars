@@ -357,10 +357,37 @@ export default function AdminPage() {
     }
   };
 
+  const autoUpdateSchedule = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating schedule from AHL...');
+    try {
+      const response = await fetch('/api/update-schedule', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
-    setMessage('🔄 Updating EVERYTHING (games, news, player stats, team stats, roster, and betting odds)...');
+    setMessage('🔄 Updating EVERYTHING (schedule, games, news, player stats, team stats, roster, and betting odds)...');
     try {
+      // Update schedule
+      const scheduleResponse = await fetch('/api/update-schedule', {
+        method: 'POST',
+      });
+      const scheduleData = await scheduleResponse.json();
+
       // Update games and news
       const gamesResponse = await fetch('/api/update-stars-data', {
         method: 'POST',
@@ -389,10 +416,10 @@ export default function AdminPage() {
       const oddsResponse = await fetch('/api/update-betting-odds');
       const oddsData = await oddsResponse.json();
 
-      if (gamesData.success && statsData.success && teamData.success && rosterData.success && oddsData.success) {
-        setMessage(`✅ Complete update: ${gamesData.message} + ${statsData.message} + Team stats updated + ${rosterData.message} + ${oddsData.message}`);
+      if (scheduleData.success && gamesData.success && statsData.success && teamData.success && rosterData.success && oddsData.success) {
+        setMessage(`✅ Complete update: ${scheduleData.message} + ${gamesData.message} + ${statsData.message} + Team stats updated + ${rosterData.message} + ${oddsData.message}`);
       } else {
-        setMessage(`❌ Error: ${gamesData.error || statsData.error || teamData.error || rosterData.error || oddsData.error}`);
+        setMessage(`❌ Error: ${scheduleData.error || gamesData.error || statsData.error || teamData.error || rosterData.error || oddsData.error}`);
       }
     } catch (error: any) {
       setMessage(`❌ Error: ${error.message}`);
@@ -520,10 +547,17 @@ export default function AdminPage() {
               {loading ? '⏳ Updating...' : '🔄 AUTO-UPDATE EVERYTHING'}
             </button>
             <p className="text-sm text-gray-600 text-center font-semibold mb-4">
-              Updates ALL data: games, news, player stats, team stats, roster, AND betting odds in one click!
+              Updates ALL data: schedule, games, news, player stats, team stats, roster, AND betting odds in one click!
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
+              <button
+                onClick={autoUpdateSchedule}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
+              >
+                {loading ? '⏳' : '📅'} Schedule
+              </button>
               <button
                 onClick={autoUpdateStarsData}
                 disabled={loading}
@@ -568,7 +602,7 @@ export default function AdminPage() {
               </button>
             </div>
             <p className="text-xs text-gray-500 text-center mt-3">
-              Click individual buttons above to update specific data types. Betting odds calculated from live AHL stats!
+              Click individual buttons above to update specific data types. Schedule and betting odds auto-fetch from AHL!
             </p>
           </div>
 
@@ -770,8 +804,8 @@ export default function AdminPage() {
                   <span>REAL-TIME AUTO-UPDATE</span>
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1 ml-6">
-                  <li>• Updates games, news, player stats, AND team stats automatically</li>
-                  <li>• Fetches latest data from official sources</li>
+                  <li>• Updates schedule, games, news, player stats, AND team stats automatically</li>
+                  <li>• Fetches latest data from AHL API and official sources</li>
                   <li>• Removes outdated information automatically</li>
                   <li>• No manual data entry needed!</li>
                   <li>• Click once to update everything</li>
@@ -779,16 +813,17 @@ export default function AdminPage() {
               </div>
               <div className="bg-green-50 p-4 rounded-lg border-2 border-green-500">
                 <h3 className="font-black text-green-700 mb-2 flex items-center space-x-2">
-                  <span>🔄</span>
-                  <span>AUTOMATIC GAME MANAGEMENT</span>
+                  <span>📅</span>
+                  <span>AUTOMATIC SCHEDULE MANAGEMENT</span>
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1 ml-6">
-                  <li>• Fetches ALL upcoming games from schedule</li>
-                  <li>• Automatically removes past games</li>
-                  <li>• Always shows the next upcoming game</li>
-                  <li>• Includes 5+ future games in rotation</li>
-                  <li>• Home and away games included</li>
-                  <li>• Countdown timer updates in real-time</li>
+                  <li>• Fetches complete 2025-26 season schedule from AHL API</li>
+                  <li>• Updates game times, dates, and opponents automatically</li>
+                  <li>• Shows final scores for completed games</li>
+                  <li>• Displays live game status during active games</li>
+                  <li>• Home and away games with venue information</li>
+                  <li>• Filter by home/away/upcoming/past games</li>
+                  <li>• Countdown timer to next game</li>
                 </ul>
               </div>
               <div>
