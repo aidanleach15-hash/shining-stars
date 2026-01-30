@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface ScheduleGame {
@@ -19,10 +19,40 @@ interface ScheduleGame {
   season: string;
 }
 
+interface LiveGame {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore: number;
+  awayScore: number;
+  period: string;
+  timeRemaining: string;
+  homeShotsOnGoal: number;
+  awayShotsOnGoal: number;
+  isLive: boolean;
+  gameStatus: string;
+}
+
 export default function SchedulePage() {
   const [games, setGames] = useState<ScheduleGame[]>([]);
+  const [liveGame, setLiveGame] = useState<LiveGame | null>(null);
   const [filter, setFilter] = useState<'all' | 'home' | 'away' | 'past' | 'upcoming'>('all');
   const [loading, setLoading] = useState(true);
+
+  // Auto-fetch live game data every 30 seconds
+  useEffect(() => {
+    const fetchLiveData = async () => {
+      try {
+        await fetch('/api/auto-update-live-game');
+      } catch (error) {
+        console.error('Error fetching live data:', error);
+      }
+    };
+
+    fetchLiveData();
+    const interval = setInterval(fetchLiveData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const q = query(collection(db, 'schedule'), orderBy('date', 'asc'));
@@ -34,6 +64,29 @@ export default function SchedulePage() {
       } as ScheduleGame));
       setGames(gamesData);
       setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Listen to live game updates
+  useEffect(() => {
+    const q = query(
+      collection(db, 'liveGame'),
+      orderBy('timestamp', 'desc'),
+      limit(1)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const gameData = {
+          id: snapshot.docs[0].id,
+          ...snapshot.docs[0].data()
+        } as LiveGame;
+        setLiveGame(gameData);
+      } else {
+        setLiveGame(null);
+      }
     });
 
     return () => unsubscribe();
@@ -161,11 +214,21 @@ export default function SchedulePage() {
                 const gameDate = game.date?.toDate ? game.date.toDate() : new Date(game.date);
                 const isPast = gameDate < new Date() || game.status === 'final';
 
+                // Check if this game is the live game
+                const isLiveGame = liveGame && (
+                  (game.isHome && liveGame.homeTeam === 'Texas Stars' && liveGame.awayTeam.includes(game.opponent.split(' ')[0])) ||
+                  (!game.isHome && liveGame.awayTeam === 'Texas Stars' && liveGame.homeTeam.includes(game.opponent.split(' ')[0]))
+                );
+
+                const displayStarsScore = isLiveGame ? (game.isHome ? liveGame.homeScore : liveGame.awayScore) : game.starsScore;
+                const displayOpponentScore = isLiveGame ? (game.isHome ? liveGame.awayScore : liveGame.homeScore) : game.opponentScore;
+                const isGameLive = isLiveGame && liveGame.isLive;
+
                 return (
                   <div
                     key={game.id}
                     className={`bg-white rounded-lg shadow-xl border-2 sm:border-4 border-black overflow-hidden hover:shadow-2xl transition-all ${
-                      game.status === 'in_progress' ? 'ring-4 ring-red-500' : ''
+                      isGameLive ? 'ring-4 ring-red-500 animate-pulse' : ''
                     }`}
                   >
                     <div className="p-4 sm:p-6">
@@ -174,10 +237,15 @@ export default function SchedulePage() {
                         <div className="flex-shrink-0">
                           <div className="text-xs sm:text-sm font-black text-gray-500 uppercase">{formatGameDate(game.date)}</div>
                           <div className="text-base sm:text-lg font-bold text-gray-700">{game.time}</div>
-                          {game.status === 'in_progress' && (
-                            <div className="text-xs font-black text-red-600 uppercase animate-pulse flex items-center gap-1">
-                              <span className="w-2 h-2 bg-red-600 rounded-full"></span>
-                              LIVE
+                          {isGameLive && (
+                            <div className="mt-1 space-y-1">
+                              <div className="text-xs font-black text-red-600 uppercase animate-pulse flex items-center gap-1">
+                                <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                                LIVE
+                              </div>
+                              <div className="text-xs font-bold text-gray-600">
+                                {liveGame.period} - {liveGame.timeRemaining}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -187,15 +255,19 @@ export default function SchedulePage() {
                           <div className="flex items-center justify-center gap-2 sm:gap-4">
                             <div className="text-center flex-1">
                               <div className="text-base sm:text-xl md:text-2xl font-black text-green-600">TEXAS STARS</div>
-                              {game.status === 'final' && (
-                                <div className="text-2xl sm:text-4xl font-black text-gray-800 mt-1">{game.starsScore}</div>
+                              {(game.status === 'final' || isGameLive) && (
+                                <div className={`text-2xl sm:text-4xl font-black mt-1 ${isGameLive ? 'text-green-600' : 'text-gray-800'}`}>
+                                  {displayStarsScore}
+                                </div>
                               )}
                             </div>
                             <div className="text-xl sm:text-2xl font-black text-gray-400">vs</div>
                             <div className="text-center flex-1">
                               <div className="text-base sm:text-xl md:text-2xl font-black text-gray-800">{game.opponent}</div>
-                              {game.status === 'final' && (
-                                <div className="text-2xl sm:text-4xl font-black text-gray-800 mt-1">{game.opponentScore}</div>
+                              {(game.status === 'final' || isGameLive) && (
+                                <div className={`text-2xl sm:text-4xl font-black mt-1 ${isGameLive ? 'text-red-600' : 'text-gray-800'}`}>
+                                  {displayOpponentScore}
+                                </div>
                               )}
                             </div>
                           </div>
@@ -210,13 +282,18 @@ export default function SchedulePage() {
                             </span>
                           </div>
                           <div className="text-xs text-gray-600">{game.location}</div>
-                          {game.status === 'final' && (
+                          {game.status === 'final' && !isGameLive && (
                             <div className={`mt-2 px-3 py-1 rounded-full text-xs font-black inline-block ${
                               game.starsScore! > game.opponentScore!
                                 ? 'bg-green-100 text-green-700'
                                 : 'bg-red-100 text-red-700'
                             }`}>
                               {game.starsScore! > game.opponentScore! ? 'W' : 'L'}
+                            </div>
+                          )}
+                          {isGameLive && (
+                            <div className="mt-2 px-3 py-1 rounded-full text-xs font-black inline-block bg-red-100 text-red-700 border-2 border-red-600">
+                              IN PROGRESS
                             </div>
                           )}
                         </div>
