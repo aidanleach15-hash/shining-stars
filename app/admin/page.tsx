@@ -378,9 +378,30 @@ export default function AdminPage() {
     }
   };
 
+  const autoUpdateStandings = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating AHL standings...');
+    try {
+      const response = await fetch('/api/update-standings', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
-    setMessage('🔄 Updating EVERYTHING (schedule, games, news, player stats, team stats, roster, and betting odds)...');
+    setMessage('🔄 Updating EVERYTHING (schedule, games, news, player stats, team stats, roster, standings, and betting odds)...');
     try {
       // Update schedule
       const scheduleResponse = await fetch('/api/update-schedule', {
@@ -412,14 +433,20 @@ export default function AdminPage() {
       });
       const rosterData = await rosterResponse.json();
 
+      // Update standings
+      const standingsResponse = await fetch('/api/update-standings', {
+        method: 'POST',
+      });
+      const standingsData = await standingsResponse.json();
+
       // Update betting odds
       const oddsResponse = await fetch('/api/update-betting-odds');
       const oddsData = await oddsResponse.json();
 
-      if (scheduleData.success && gamesData.success && statsData.success && teamData.success && rosterData.success && oddsData.success) {
-        setMessage(`✅ Complete update: ${scheduleData.message} + ${gamesData.message} + ${statsData.message} + Team stats updated + ${rosterData.message} + ${oddsData.message}`);
+      if (scheduleData.success && gamesData.success && statsData.success && teamData.success && rosterData.success && standingsData.success && oddsData.success) {
+        setMessage(`✅ Complete update: ${scheduleData.message} + ${gamesData.message} + ${statsData.message} + Team stats updated + ${rosterData.message} + ${standingsData.message} + ${oddsData.message}`);
       } else {
-        setMessage(`❌ Error: ${scheduleData.error || gamesData.error || statsData.error || teamData.error || rosterData.error || oddsData.error}`);
+        setMessage(`❌ Error: ${scheduleData.error || gamesData.error || statsData.error || teamData.error || rosterData.error || standingsData.error || oddsData.error}`);
       }
     } catch (error: any) {
       setMessage(`❌ Error: ${error.message}`);
@@ -547,7 +574,7 @@ export default function AdminPage() {
               {loading ? '⏳ Updating...' : '🔄 AUTO-UPDATE EVERYTHING'}
             </button>
             <p className="text-sm text-gray-600 text-center font-semibold mb-4">
-              Updates ALL data: schedule, games, news, player stats, team stats, roster, AND betting odds in one click!
+              Updates ALL data: schedule, games, news, player stats, team stats, roster, standings, AND betting odds in one click!
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
@@ -585,6 +612,13 @@ export default function AdminPage() {
                 className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
               >
                 {loading ? '⏳' : '👥'} Roster
+              </button>
+              <button
+                onClick={autoUpdateStandings}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
+              >
+                {loading ? '⏳' : '🏆'} Standings
               </button>
               <button
                 onClick={autoUpdateBettingOdds}
