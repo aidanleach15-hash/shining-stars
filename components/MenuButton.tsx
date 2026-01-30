@@ -42,7 +42,7 @@ export default function MenuButton() {
         ☰ MENU
       </button>
       {isMenuOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white border-4 border-black rounded-lg shadow-2xl min-w-[320px]">
+        <div className="absolute top-full left-0 mt-2 bg-white border-4 border-black rounded-lg shadow-2xl min-w-[320px] max-h-[80vh] overflow-y-auto">
           <Link
             href="/feed"
             onClick={() => setIsMenuOpen(false)}
