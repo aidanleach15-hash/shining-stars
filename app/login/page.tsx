@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, continueAsGuest } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +37,11 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuestMode = () => {
+    continueAsGuest();
+    router.push('/feed');
   };
 
   return (
@@ -134,6 +139,15 @@ export default function LoginPage() {
             <Link href="/signup" className="text-green-700 font-black hover:text-green-800 text-lg hover:underline">
               Create an Account
             </Link>
+          </div>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={handleGuestMode}
+              className="w-full py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-100 border-2 border-gray-300 font-bold text-base transition-all"
+            >
+              Continue as Guest
+            </button>
           </div>
         </div>
       </div>

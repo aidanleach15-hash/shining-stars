@@ -137,7 +137,7 @@ export default function SchedulePage() {
   const nextGame = getNextGame();
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowGuests={true}>
       <div className="min-h-screen py-4 sm:py-8" style={{backgroundColor: '#007A33'}}>
         <div className="max-w-6xl mx-auto px-2 sm:px-4">
           {/* Header */}

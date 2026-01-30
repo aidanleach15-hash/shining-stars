@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove, deleteDoc } from 'firebase/firestore';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAuth } from '@/lib/auth-context';
+import GuestUpgradePrompt from '@/components/GuestUpgradePrompt';
 
 export default function FeedPage() {
   const [newPost, setNewPost] = useState('');
@@ -13,7 +14,7 @@ export default function FeedPage() {
   const [commentText, setCommentText] = useState<{[key: string]: string}>({});
   const [showComments, setShowComments] = useState<{[key: string]: boolean}>({});
   const [commentLoading, setCommentLoading] = useState<{[key: string]: boolean}>({});
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
 
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
@@ -111,7 +112,7 @@ export default function FeedPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowGuests={true}>
       <div className="min-h-screen py-8" style={{backgroundColor: '#007A33'}}>
         {/* Fan Feed Header */}
         <div className="max-w-2xl mx-auto mb-8 text-center px-4">
@@ -127,37 +128,41 @@ export default function FeedPage() {
           <p className="text-xl font-black text-white tracking-wide">THE HOME OF TRUE STARS FANS</p>
         </div>
 
-        {/* Post Your Thoughts */}
+        {/* Post Your Thoughts - Only show for authenticated users */}
         <div className="max-w-2xl mx-auto mb-6 px-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 border-4 border-black">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-2xl border-3 border-black mr-3">
-                ⭐
+          {!isGuest ? (
+            <div className="bg-white rounded-lg shadow-lg p-6 border-4 border-black">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-2xl border-3 border-black mr-3">
+                  ⭐
+                </div>
+                <h2 className="text-2xl font-black text-black uppercase tracking-wide">Sound Off!</h2>
               </div>
-              <h2 className="text-2xl font-black text-black uppercase tracking-wide">Sound Off!</h2>
+              <form onSubmit={handleAddPost}>
+                <textarea
+                  value={newPost}
+                  onChange={(e) => setNewPost(e.target.value)}
+                  placeholder="Let's hear it, Stars fans! Share your thoughts, hot takes, game predictions... 🏒⭐"
+                  className="w-full p-4 border-3 border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-4 focus:ring-green-600 focus:border-green-600 text-gray-900 font-medium text-lg"
+                  rows={4}
+                />
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={loading || !newPost.trim()}
+                    className="px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-black text-lg uppercase tracking-wider border-3 border-black shadow-lg transition-all"
+                    style={{
+                      textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                    }}
+                  >
+                    {loading ? '🏒 POSTING...' : '⭐ POST IT!'}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleAddPost}>
-              <textarea
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                placeholder="Let's hear it, Stars fans! Share your thoughts, hot takes, game predictions... 🏒⭐"
-                className="w-full p-4 border-3 border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-4 focus:ring-green-600 focus:border-green-600 text-gray-900 font-medium text-lg"
-                rows={4}
-              />
-              <div className="mt-4 flex justify-end">
-                <button
-                  type="submit"
-                  disabled={loading || !newPost.trim()}
-                  className="px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-black text-lg uppercase tracking-wider border-3 border-black shadow-lg transition-all"
-                  style={{
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
-                  }}
-                >
-                  {loading ? '🏒 POSTING...' : '⭐ POST IT!'}
-                </button>
-              </div>
-            </form>
-          </div>
+          ) : (
+            <GuestUpgradePrompt inline />
+          )}
         </div>
 
         {/* Posts Feed */}
@@ -210,10 +215,12 @@ export default function FeedPage() {
                     {/* Action Buttons */}
                     <div className="mt-4 pt-4 border-t-2 border-gray-200 flex items-center space-x-6">
                       <button
-                        onClick={() => toggleLike(post.id, likes)}
+                        onClick={() => !isGuest && toggleLike(post.id, likes)}
+                        disabled={isGuest}
                         className={`flex items-center space-x-2 font-bold transition-colors ${
-                          hasLiked ? 'text-green-600' : 'text-gray-600 hover:text-green-600'
+                          isGuest ? 'text-gray-400 cursor-not-allowed' : hasLiked ? 'text-green-600' : 'text-gray-600 hover:text-green-600'
                         }`}
+                        title={isGuest ? 'Sign up to like posts' : ''}
                       >
                         <span className="text-xl">{hasLiked ? '⭐' : '☆'}</span>
                         <span className="text-sm uppercase tracking-wide">
@@ -255,27 +262,33 @@ export default function FeedPage() {
                         )}
 
                         {/* Add Comment Form */}
-                        <div className="flex items-start space-x-2">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-sm border-2 border-black flex-shrink-0">
-                            ⭐
+                        {!isGuest ? (
+                          <div className="flex items-start space-x-2">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-sm border-2 border-black flex-shrink-0">
+                              ⭐
+                            </div>
+                            <div className="flex-1">
+                              <textarea
+                                value={commentText[post.id] || ''}
+                                onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
+                                placeholder="Add a comment..."
+                                className="w-full p-2 border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-900 text-sm"
+                                rows={2}
+                              />
+                              <button
+                                onClick={() => handleAddComment(post.id)}
+                                disabled={commentLoading[post.id] || !commentText[post.id]?.trim()}
+                                className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold text-sm uppercase"
+                              >
+                                {commentLoading[post.id] ? 'Posting...' : 'Comment'}
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <textarea
-                              value={commentText[post.id] || ''}
-                              onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
-                              placeholder="Add a comment..."
-                              className="w-full p-2 border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-900 text-sm"
-                              rows={2}
-                            />
-                            <button
-                              onClick={() => handleAddComment(post.id)}
-                              disabled={commentLoading[post.id] || !commentText[post.id]?.trim()}
-                              className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold text-sm uppercase"
-                            >
-                              {commentLoading[post.id] ? 'Posting...' : 'Comment'}
-                            </button>
+                        ) : (
+                          <div className="mt-2">
+                            <GuestUpgradePrompt inline />
                           </div>
-                        </div>
+                        )}
                       </div>
                     )}
                   </div>

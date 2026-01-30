@@ -4,16 +4,22 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import MenuButton from '@/components/MenuButton';
+import GuestUpgradePrompt from '@/components/GuestUpgradePrompt';
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowGuests?: boolean;
+}
+
+export default function ProtectedRoute({ children, allowGuests = false }: ProtectedRouteProps) {
+  const { user, loading, isGuest } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !isGuest) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, loading, isGuest, router]);
 
   if (loading) {
     return (
@@ -23,14 +29,40 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     );
   }
 
-  if (!user) {
-    return null;
+  // If authenticated user, allow access
+  if (user) {
+    return (
+      <>
+        <MenuButton />
+        {children}
+      </>
+    );
   }
 
-  return (
-    <>
-      <MenuButton />
-      {children}
-    </>
-  );
+  // If guest and guests are allowed, show content
+  if (isGuest && allowGuests) {
+    return (
+      <>
+        <MenuButton />
+        {children}
+      </>
+    );
+  }
+
+  // If guest but guests not allowed, show upgrade prompt
+  if (isGuest && !allowGuests) {
+    return (
+      <>
+        <MenuButton />
+        <div className="min-h-screen py-8 px-4 flex items-center justify-center" style={{backgroundColor: '#007A33'}}>
+          <div className="max-w-2xl w-full">
+            <GuestUpgradePrompt />
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Not authenticated and not guest - redirect handled by useEffect
+  return null;
 }

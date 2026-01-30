@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import GuestUpgradePrompt from '@/components/GuestUpgradePrompt';
 
 export default function MenuButton() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { logout } = useAuth();
+  const { logout, isGuest } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -32,6 +34,16 @@ export default function MenuButton() {
     await logout();
     router.push('/');
   };
+
+  const handleRestrictedClick = (e: React.MouseEvent) => {
+    if (isGuest) {
+      e.preventDefault();
+      setIsMenuOpen(false);
+      setShowUpgradeModal(true);
+    }
+  };
+
+  const restrictedPages = ['/predictions', '/admin'];
 
   return (
     <div className="fixed top-4 left-4 z-50" ref={menuRef}>
@@ -94,10 +106,16 @@ export default function MenuButton() {
           </Link>
           <Link
             href="/predictions"
-            onClick={() => setIsMenuOpen(false)}
+            onClick={(e) => {
+              if (isGuest) {
+                handleRestrictedClick(e);
+              } else {
+                setIsMenuOpen(false);
+              }
+            }}
             className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
           >
-            🎯 PREDICTIONS
+            🎯 PREDICTIONS {isGuest && '🔒'}
           </Link>
           <Link
             href="/leaderboard"
@@ -171,17 +189,42 @@ export default function MenuButton() {
           </Link>
           <Link
             href="/admin"
-            onClick={() => setIsMenuOpen(false)}
+            onClick={(e) => {
+              if (isGuest) {
+                handleRestrictedClick(e);
+              } else {
+                setIsMenuOpen(false);
+              }
+            }}
             className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
           >
-            🔧 ADMIN
+            🔧 ADMIN {isGuest && '🔒'}
           </Link>
-          <button
-            onClick={handleLogout}
-            className="block w-full text-left px-8 py-5 hover:bg-red-50 font-black text-red-600 text-2xl"
-          >
-            🚪 LOGOUT
-          </button>
+          {!isGuest ? (
+            <button
+              onClick={handleLogout}
+              className="block w-full text-left px-8 py-5 hover:bg-red-50 font-black text-red-600 text-2xl"
+            >
+              🚪 LOGOUT
+            </button>
+          ) : (
+            <Link
+              href="/signup"
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-8 py-5 hover:bg-green-50 font-black text-green-600 text-2xl border-t-4 border-green-600"
+            >
+              ⭐ SIGN UP
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Upgrade Modal for Guests */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4" onClick={() => setShowUpgradeModal(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="max-w-2xl w-full">
+            <GuestUpgradePrompt />
+          </div>
         </div>
       )}
     </div>

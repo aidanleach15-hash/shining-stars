@@ -6,14 +6,14 @@ import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, loading, isGuest } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && (user || isGuest)) {
       router.push('/feed');
     }
-  }, [user, loading, router]);
+  }, [user, loading, isGuest, router]);
 
   if (loading) {
     return (
@@ -23,7 +23,7 @@ export default function Home() {
     );
   }
 
-  if (user) {
+  if (user || isGuest) {
     return null;
   }
 

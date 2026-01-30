@@ -11,7 +11,7 @@ export default function LiveChatPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [sending, setSending] = useState(false);
   const [replyingTo, setReplyingTo] = useState<any>(null);
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -92,7 +92,7 @@ export default function LiveChatPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowGuests={true}>
       <div className="min-h-screen flex flex-col" style={{backgroundColor: '#007A33'}}>
         {/* Header */}
         <div className="bg-black border-b-4 border-white py-4 px-4 sticky top-0 z-10">
@@ -223,15 +223,15 @@ export default function LiveChatPage() {
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder={replyingTo ? "Write a reply..." : "Send a message... Let's Go Stars! 🏒"}
-                  className="w-full px-4 py-3 bg-white border-3 border-white rounded-lg focus:outline-none focus:ring-4 focus:ring-green-500 text-black font-medium text-base"
+                  placeholder={isGuest ? "Sign up to join the conversation..." : (replyingTo ? "Write a reply..." : "Send a message... Let's Go Stars! 🏒")}
+                  className="w-full px-4 py-3 bg-white border-3 border-white rounded-lg focus:outline-none focus:ring-4 focus:ring-green-500 text-black font-medium text-base disabled:bg-gray-200 disabled:cursor-not-allowed"
                   maxLength={200}
-                  disabled={sending}
+                  disabled={sending || isGuest}
                 />
               </div>
               <button
                 type="submit"
-                disabled={sending || !message.trim()}
+                disabled={sending || !message.trim() || isGuest}
                 className="px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed font-black uppercase tracking-wider border-3 border-white shadow-lg transition-all flex items-center space-x-2"
               >
                 <span>{sending ? '📤' : '⭐'}</span>
@@ -239,7 +239,7 @@ export default function LiveChatPage() {
               </button>
             </form>
             <p className="text-xs text-white text-center mt-2 font-semibold">
-              {replyingTo ? 'Replying to a message - Click ✕ to cancel' : 'Click any message to reply!'}
+              {isGuest ? '👋 Browsing as guest - Sign up to chat!' : (replyingTo ? 'Replying to a message - Click ✕ to cancel' : 'Click any message to reply!')}
             </p>
           </div>
         </div>
