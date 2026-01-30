@@ -476,6 +476,27 @@ export default function AdminPage() {
     }
   };
 
+  const awardPredictions = async () => {
+    setLoading(true);
+    setMessage('🎯 Awarding pucks for correct predictions...');
+    try {
+      const response = await fetch('/api/award-predictions', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addSamplePlayerStats = async () => {
     setLoading(true);
     setMessage('Clearing old stats and adding fresh 2025-26 season data...');
@@ -626,6 +647,13 @@ export default function AdminPage() {
                 className="px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all border-2 border-yellow-600"
               >
                 {loading ? '⏳' : '💰'} Betting Odds
+              </button>
+              <button
+                onClick={awardPredictions}
+                disabled={loading}
+                className="px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all border-2 border-green-600"
+              >
+                {loading ? '⏳' : '🎯'} Award Pucks
               </button>
               <button
                 onClick={fetchMerch}

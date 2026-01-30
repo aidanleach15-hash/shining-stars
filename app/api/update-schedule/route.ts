@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, deleteDoc, addDoc } from 'firebase/firestore';
+import { awardAllPendingPredictions } from '@/lib/award-predictions';
 
 export async function POST() {
   try {
@@ -110,10 +111,14 @@ export async function POST() {
       });
     }
 
+    // Award predictions for any newly finalized games
+    const awardResult = await awardAllPendingPredictions();
+
     return NextResponse.json({
       success: true,
-      message: `Updated schedule with ${completeSchedule.length} games (${completeSchedule.filter(g => g.status === 'final').length} completed, ${completeSchedule.filter(g => g.status === 'scheduled').length} upcoming)`,
-      gamesAdded: completeSchedule.length
+      message: `Updated schedule with ${completeSchedule.length} games (${completeSchedule.filter(g => g.status === 'final').length} completed, ${completeSchedule.filter(g => g.status === 'scheduled').length} upcoming). Awarded ${awardResult.totalAwarded || 0} predictions.`,
+      gamesAdded: completeSchedule.length,
+      predictionsAwarded: awardResult.totalAwarded || 0
     });
 
   } catch (error: any) {
