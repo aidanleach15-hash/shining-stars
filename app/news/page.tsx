@@ -131,6 +131,18 @@ export default function NewsPage() {
     });
   };
 
+  const isGameToday = () => {
+    if (!nextGame?.date) return false;
+    const gameDate = nextGame.date.toDate();
+    const today = new Date();
+
+    return (
+      gameDate.getDate() === today.getDate() &&
+      gameDate.getMonth() === today.getMonth() &&
+      gameDate.getFullYear() === today.getFullYear()
+    );
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen py-8" style={{backgroundColor: '#007A33'}}>
@@ -153,30 +165,54 @@ export default function NewsPage() {
           {nextGame ? (
             <div className="bg-black rounded-lg shadow-xl p-8 border-4 border-white">
               <div className="text-center mb-6">
-                <h2 className="text-4xl font-black text-white mb-2 uppercase tracking-wide">
-                  ⏰ NEXT GAME
-                </h2>
-                <p className="text-green-400 font-bold text-lg">
-                  {formatGameDate(nextGame.date)} • {nextGame.time}
-                </p>
+                {isGameToday() ? (
+                  <>
+                    <h2 className="text-4xl font-black text-white mb-2 uppercase tracking-wide">
+                      🏒 PUCK DROP TODAY!
+                    </h2>
+                    <p className="text-green-400 font-bold text-lg animate-pulse">
+                      TODAY • {nextGame.time}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-4xl font-black text-white mb-2 uppercase tracking-wide">
+                      ⏰ NEXT GAME
+                    </h2>
+                    <p className="text-green-400 font-bold text-lg">
+                      {formatGameDate(nextGame.date)} • {nextGame.time}
+                    </p>
+                  </>
+                )}
               </div>
+
+              {/* Countdown Label */}
+              {isGameToday() && (
+                <div className="text-center mb-4">
+                  <div className="inline-block bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-full border-4 border-white shadow-xl">
+                    <p className="text-xl font-black uppercase tracking-wider">
+                      ⏰ Time Till Puck Drop ⏰
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Countdown Timer */}
               <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="bg-white rounded-lg p-4 border-3 border-green-500 text-center">
-                  <div className="text-5xl font-black text-black">{timeUntilGame.days}</div>
+                <div className={`bg-white rounded-lg p-4 border-3 text-center ${isGameToday() ? 'border-green-600 animate-pulse' : 'border-green-500'}`}>
+                  <div className={`text-5xl font-black ${isGameToday() ? 'text-green-600' : 'text-black'}`}>{timeUntilGame.days}</div>
                   <div className="text-sm font-black text-gray-600 uppercase tracking-wide mt-1">Days</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 border-3 border-green-500 text-center">
-                  <div className="text-5xl font-black text-black">{timeUntilGame.hours}</div>
+                <div className={`bg-white rounded-lg p-4 border-3 text-center ${isGameToday() ? 'border-green-600 animate-pulse' : 'border-green-500'}`}>
+                  <div className={`text-5xl font-black ${isGameToday() ? 'text-green-600' : 'text-black'}`}>{timeUntilGame.hours}</div>
                   <div className="text-sm font-black text-gray-600 uppercase tracking-wide mt-1">Hours</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 border-3 border-green-500 text-center">
-                  <div className="text-5xl font-black text-black">{timeUntilGame.minutes}</div>
+                <div className={`bg-white rounded-lg p-4 border-3 text-center ${isGameToday() ? 'border-green-600 animate-pulse' : 'border-green-500'}`}>
+                  <div className={`text-5xl font-black ${isGameToday() ? 'text-green-600' : 'text-black'}`}>{timeUntilGame.minutes}</div>
                   <div className="text-sm font-black text-gray-600 uppercase tracking-wide mt-1">Minutes</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 border-3 border-green-500 text-center">
-                  <div className="text-5xl font-black text-black">{timeUntilGame.seconds}</div>
+                <div className={`bg-white rounded-lg p-4 border-3 text-center ${isGameToday() ? 'border-green-600 animate-pulse' : 'border-green-500'}`}>
+                  <div className={`text-5xl font-black ${isGameToday() ? 'text-green-600' : 'text-black'}`}>{timeUntilGame.seconds}</div>
                   <div className="text-sm font-black text-gray-600 uppercase tracking-wide mt-1">Seconds</div>
                 </div>
               </div>
