@@ -106,48 +106,49 @@ function findTexasStarsGame(data: any) {
 
     // Find Texas Stars game
     for (const game of games) {
-      const homeTeam = game.home_team_name || '';
-      const awayTeam = game.visiting_team_name || '';
+      const homeCity = game.HomeCity || '';
+      const visitorCity = game.VisitorCity || '';
 
-      if (homeTeam.includes('Texas') || awayTeam.includes('Texas')) {
-        const isTexasHome = homeTeam.includes('Texas');
-        const gameStatus = game.game_status || game.status || '';
+      if (homeCity === 'Texas' || visitorCity === 'Texas') {
+        const isTexasHome = homeCity === 'Texas';
+        const gameStatus = game.GameStatusString || game.GameStatus || '';
+        const gameStatusLong = game.GameStatusStringLong || gameStatus;
 
-        // Detect if game is live - check multiple status indicators
+        // Detect if game is live
         const isLive =
-          gameStatus.toLowerCase().includes('in progress') ||
-          gameStatus.toLowerCase().includes('live') ||
-          gameStatus === 'InProgress' ||
-          gameStatus === '2' || // AHL API uses numeric codes
-          (game.period && parseInt(game.period) > 0 && parseInt(game.period) <= 5 && gameStatus !== 'Final');
+          gameStatus.toLowerCase().includes('progress') ||
+          (game.Period && parseInt(game.Period) > 0 && parseInt(game.Period) <= 5 && !gameStatus.toLowerCase().includes('final'));
 
-        // Parse period more accurately
-        let period = parsePeriod(game.period || game.current_period || '0');
-        if (gameStatus.toLowerCase().includes('final')) {
-          period = 'Final';
-        } else if (gameStatus.toLowerCase().includes('pregame')) {
-          period = 'Pregame';
-        } else if (!period || period === '0') {
-          period = gameStatus || 'Scheduled';
+        // Parse period
+        let period = game.PeriodNameShort || game.Period || '';
+        if (period === '4') period = 'OT';
+        else if (period === '5') period = 'SO';
+        else if (period === '1') period = '1st Period';
+        else if (period === '2') period = '2nd Period';
+        else if (period === '3') period = '3rd Period';
+
+        if (gameStatusLong.toLowerCase().includes('final')) {
+          period = gameStatusLong; // "Final OT", "Final SO", or just "Final"
         }
 
-        // Get time remaining - handle different formats
-        let timeRemaining = game.time_remaining || game.clock || '';
-        if (!timeRemaining && period !== 'Final' && period !== 'Pregame') {
-          timeRemaining = '20:00';
-        }
+        // Get time remaining
+        let timeRemaining = game.GameClock || '';
+
+        // Get team names
+        const homeTeamName = game.HomeLongName || `${game.HomeCity} ${game.HomeNickname}`;
+        const visitorTeamName = game.VisitorLongName || `${game.VisitorCity} ${game.VisitorNickname}`;
 
         return {
-          homeTeam: isTexasHome ? 'Texas Stars' : (awayTeam || 'Opponent'),
-          awayTeam: isTexasHome ? (awayTeam || 'Opponent') : 'Texas Stars',
-          homeScore: parseInt(game.home_goal_count || game.home_score || 0),
-          awayScore: parseInt(game.visiting_goal_count || game.visitor_score || game.away_score || 0),
-          period: period,
+          homeTeam: isTexasHome ? 'Texas Stars' : visitorTeamName,
+          awayTeam: isTexasHome ? visitorTeamName : 'Texas Stars',
+          homeScore: parseInt(game.HomeGoals) || 0,
+          awayScore: parseInt(game.VisitorGoals) || 0,
+          period: period || 'Scheduled',
           timeRemaining: timeRemaining,
-          homeShotsOnGoal: parseInt(game.home_shots || game.home_sog || 0),
-          awayShotsOnGoal: parseInt(game.visiting_shots || game.visitor_sog || game.away_sog || 0),
+          homeShotsOnGoal: parseInt(game.HomeShots) || 0,
+          awayShotsOnGoal: parseInt(game.VisitorShots) || 0,
           isLive: isLive,
-          gameStatus: gameStatus || 'Unknown'
+          gameStatus: gameStatusLong || gameStatus || 'Scheduled'
         };
       }
     }
