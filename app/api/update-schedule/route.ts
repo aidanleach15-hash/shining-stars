@@ -57,9 +57,9 @@ export async function POST() {
       { date: new Date('2026-01-21T19:00:00'), opponent: 'IOWA WILD', opponentAbbr: 'IA', isHome: false, location: 'Wells Fargo Arena', time: '7:00 PM CT', status: 'final' as const, starsScore: 6, opponentScore: 4 },
       { date: new Date('2026-01-23T19:00:00'), opponent: 'ROCKFORD ICEHOGS', opponentAbbr: 'ROC', isHome: false, location: 'BMO Center', time: '7:00 PM CT', status: 'final' as const, starsScore: 5, opponentScore: 0 },
 
-      // JANUARY 2026 - UPCOMING GAMES
-      { date: new Date('2026-01-31T01:00:00Z'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
-      { date: new Date('2026-02-01T01:00:00Z'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
+      // JANUARY 2026 - UPCOMING GAMES (Using exact AHL API times in ISO8601 format)
+      { date: new Date('2026-01-31T19:00:00-06:00'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
+      { date: new Date('2026-02-01T19:00:00-06:00'), opponent: 'HENDERSON SILVER KNIGHTS', opponentAbbr: 'HSK', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
 
       // FEBRUARY 2026
       { date: new Date('2026-02-07T01:00:00Z'), opponent: 'MANITOBA MOOSE', opponentAbbr: 'MB', isHome: true, location: 'H-E-B Center at Cedar Park', time: '7:00 PM CT', status: 'scheduled' as const },
