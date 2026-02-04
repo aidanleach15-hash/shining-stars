@@ -17,6 +17,10 @@
     {
       "path": "/api/auto-update-live-game",
       "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/update-headlines",
+      "schedule": "0 */6 * * *"
     }
   ]
 }
