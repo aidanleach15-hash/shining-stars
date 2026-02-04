@@ -399,9 +399,30 @@ export default function AdminPage() {
     }
   };
 
+  const autoUpdateHeadlines = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating news headlines from texasstars.com...');
+    try {
+      const response = await fetch('/api/update-headlines', {
+        method: 'GET',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const autoUpdateEverything = async () => {
     setLoading(true);
-    setMessage('🔄 Updating EVERYTHING (schedule, games, news, player stats, team stats, roster, standings, and betting odds)...');
+    setMessage('🔄 Updating EVERYTHING (schedule, games, news, headlines, player stats, team stats, roster, standings, and betting odds)...');
     try {
       // Update schedule
       const scheduleResponse = await fetch('/api/update-schedule', {
@@ -414,6 +435,10 @@ export default function AdminPage() {
         method: 'POST',
       });
       const gamesData = await gamesResponse.json();
+
+      // Update headlines
+      const headlinesResponse = await fetch('/api/update-headlines');
+      const headlinesData = await headlinesResponse.json();
 
       // Update player stats
       const statsResponse = await fetch('/api/update-player-stats', {
@@ -443,10 +468,10 @@ export default function AdminPage() {
       const oddsResponse = await fetch('/api/update-betting-odds');
       const oddsData = await oddsResponse.json();
 
-      if (scheduleData.success && gamesData.success && statsData.success && teamData.success && rosterData.success && standingsData.success && oddsData.success) {
-        setMessage(`✅ Complete update: ${scheduleData.message} + ${gamesData.message} + ${statsData.message} + Team stats updated + ${rosterData.message} + ${standingsData.message} + ${oddsData.message}`);
+      if (scheduleData.success && gamesData.success && headlinesData.success && statsData.success && teamData.success && rosterData.success && standingsData.success && oddsData.success) {
+        setMessage(`✅ Complete update: ${scheduleData.message} + ${gamesData.message} + ${headlinesData.message} + ${statsData.message} + Team stats updated + ${rosterData.message} + ${standingsData.message} + ${oddsData.message}`);
       } else {
-        setMessage(`❌ Error: ${scheduleData.error || gamesData.error || statsData.error || teamData.error || rosterData.error || standingsData.error || oddsData.error}`);
+        setMessage(`❌ Error: ${scheduleData.error || gamesData.error || headlinesData.error || statsData.error || teamData.error || rosterData.error || standingsData.error || oddsData.error}`);
       }
     } catch (error: any) {
       setMessage(`❌ Error: ${error.message}`);
@@ -640,6 +665,13 @@ export default function AdminPage() {
                 className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
               >
                 {loading ? '⏳' : '🏆'} Standings
+              </button>
+              <button
+                onClick={autoUpdateHeadlines}
+                disabled={loading}
+                className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
+              >
+                {loading ? '⏳' : '📰'} Headlines
               </button>
               <button
                 onClick={autoUpdateBettingOdds}
