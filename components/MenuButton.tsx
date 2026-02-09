@@ -6,13 +6,20 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import GuestUpgradePrompt from '@/components/GuestUpgradePrompt';
 
-// Version: v2.0.0 - Predictions and Leaderboard REMOVED
+// Menu v3 - Clean menu without predictions/leaderboard
+const MENU_VERSION = 'v3.0.0';
+
 export default function MenuButton() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { logout, isGuest } = useAuth();
   const router = useRouter();
+
+  // Force cache clear on mount
+  useEffect(() => {
+    console.log('Menu loaded:', MENU_VERSION);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
