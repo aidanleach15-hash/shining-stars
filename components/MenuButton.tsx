@@ -12,6 +12,7 @@ export default function MenuButton() {
   const menuRef = useRef<HTMLDivElement>(null);
   const { logout, isGuest } = useAuth();
   const router = useRouter();
+  // Menu updated - predictions and leaderboard removed
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
