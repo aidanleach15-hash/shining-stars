@@ -1,5 +1,4 @@
 {
-  "_comment": "Deploy with headlines update",
   "buildCommand": "next build",
   "devCommand": "next dev",
   "installCommand": "npm install",
