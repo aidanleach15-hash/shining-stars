@@ -103,26 +103,6 @@ export default function MenuButton() {
             👥 ROSTER
           </Link>
           <Link
-            href="/predictions"
-            onClick={(e) => {
-              if (isGuest) {
-                handleRestrictedClick(e);
-              } else {
-                setIsMenuOpen(false);
-              }
-            }}
-            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
-          >
-            🎯 PREDICTIONS {isGuest && '🔒'}
-          </Link>
-          <Link
-            href="/leaderboard"
-            onClick={() => setIsMenuOpen(false)}
-            className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
-          >
-            🏅 LEADERBOARD
-          </Link>
-          <Link
             href="/recaps"
             onClick={() => setIsMenuOpen(false)}
             className="block px-8 py-5 hover:bg-gray-100 font-black text-black border-b-4 border-gray-200 text-2xl"
