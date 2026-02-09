@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import GuestUpgradePrompt from '@/components/GuestUpgradePrompt';
 
+// Version: v2.0.0 - Predictions and Leaderboard REMOVED
 export default function MenuButton() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
