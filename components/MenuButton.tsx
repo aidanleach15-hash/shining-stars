@@ -48,6 +48,7 @@ export default function MenuButton() {
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         className="px-10 py-5 bg-black text-white rounded-xl hover:bg-gray-800 font-black border-4 border-white text-3xl flex items-center gap-4 shadow-2xl"
+        aria-label="Open navigation menu"
       >
         ☰ MENU
       </button>
