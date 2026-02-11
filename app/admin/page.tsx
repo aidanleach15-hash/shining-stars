@@ -380,9 +380,30 @@ export default function AdminPage() {
 
   const autoUpdateStandings = async () => {
     setLoading(true);
-    setMessage('🔄 Updating AHL standings...');
+    setMessage('🔄 Updating NHL standings...');
     try {
       const response = await fetch('/api/update-standings', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`✅ ${data.message}`);
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error: any) {
+      setMessage(`❌ Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const autoUpdateAHLStandings = async () => {
+    setLoading(true);
+    setMessage('🔄 Updating AHL standings from HockeyDB...');
+    try {
+      const response = await fetch('/api/update-ahl-standings', {
         method: 'POST',
       });
       const data = await response.json();
@@ -664,7 +685,14 @@ export default function AdminPage() {
                 disabled={loading}
                 className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all"
               >
-                {loading ? '⏳' : '🏆'} Standings
+                {loading ? '⏳' : '🏆'} NHL Standings
+              </button>
+              <button
+                onClick={autoUpdateAHLStandings}
+                disabled={loading}
+                className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-bold uppercase text-xs transition-all border-2 border-green-800"
+              >
+                {loading ? '⏳' : '⭐'} AHL Standings
               </button>
               <button
                 onClick={autoUpdateHeadlines}
