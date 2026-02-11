@@ -9,6 +9,7 @@ interface StandingsTeam {
   id: string;
   teamName: string;
   teamCode: string;
+  conference: string;
   division: string;
   gamesPlayed: number;
   wins: number;
@@ -29,6 +30,27 @@ export default function StandingsPage() {
   const [teams, setTeams] = useState<StandingsTeam[]>([]);
   const [filter, setFilter] = useState<'all' | 'division' | 'conference'>('all');
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Function to manually trigger standings update
+  const updateStandings = async () => {
+    setIsUpdating(true);
+    try {
+      const response = await fetch('/api/update-ahl-standings', {
+        method: 'POST',
+        cache: 'no-store'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setLastUpdated(new Date());
+      }
+    } catch (error) {
+      console.error('Error updating standings:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   useEffect(() => {
     const q = query(collection(db, 'standings'), orderBy('points', 'desc'));
@@ -40,9 +62,26 @@ export default function StandingsPage() {
       } as StandingsTeam));
       setTeams(teamsData);
       setLoading(false);
+
+      // Get last updated timestamp
+      if (teamsData.length > 0) {
+        const firstTeam = snapshot.docs[0].data();
+        if (firstTeam.lastUpdated) {
+          setLastUpdated(firstTeam.lastUpdated.toDate());
+        }
+      }
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // Auto-refresh standings every 15 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateStandings();
+    }, 15 * 60 * 1000); // 15 minutes
+
+    return () => clearInterval(interval);
   }, []);
 
   const filterTeams = (teamsList: StandingsTeam[]) => {
@@ -52,13 +91,35 @@ export default function StandingsPage() {
         return teamsList.filter(t => t.division === starsTeam.division);
       }
     }
-    // For now, show all teams (conference filtering would need conference data)
+    if (filter === 'conference') {
+      const starsTeam = teamsList.find(t => t.teamCode === 'TEX');
+      if (starsTeam) {
+        return teamsList.filter(t => t.conference === starsTeam.conference);
+      }
+    }
     return teamsList;
+  };
+
+  const groupedTeams = () => {
+    const easternTeams = teams.filter(t => t.conference === 'Eastern Conference');
+    const westernTeams = teams.filter(t => t.conference === 'Western Conference');
+
+    return {
+      eastern: {
+        atlantic: easternTeams.filter(t => t.division === 'Atlantic Division').sort((a, b) => b.points - a.points),
+        north: easternTeams.filter(t => t.division === 'North Division').sort((a, b) => b.points - a.points)
+      },
+      western: {
+        central: westernTeams.filter(t => t.division === 'Central Division').sort((a, b) => b.points - a.points),
+        pacific: westernTeams.filter(t => t.division === 'Pacific Division').sort((a, b) => b.points - a.points)
+      }
+    };
   };
 
   const filteredTeams = filterTeams(teams);
   const starsTeam = teams.find(t => t.teamCode === 'TEX');
   const playoffLine = 4; // Top 4 teams make playoffs in AHL
+  const grouped = groupedTeams();
 
   return (
     <ProtectedRoute allowGuests={true}>
@@ -76,6 +137,24 @@ export default function StandingsPage() {
               AHL STANDINGS
             </h1>
             <p className="text-lg sm:text-xl font-black text-white tracking-wide">2025-26 SEASON STANDINGS</p>
+            <div className="mt-3 flex items-center justify-center gap-3 flex-wrap">
+              {lastUpdated && (
+                <p className="text-xs sm:text-sm text-white font-bold bg-black/30 px-3 py-1 rounded-full">
+                  Last Updated: {lastUpdated.toLocaleTimeString()}
+                </p>
+              )}
+              <button
+                onClick={updateStandings}
+                disabled={isUpdating}
+                className={`text-xs sm:text-sm font-bold px-3 py-1 rounded-full transition-all ${
+                  isUpdating
+                    ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                    : 'bg-white text-green-700 hover:bg-green-100 border-2 border-black'
+                }`}
+              >
+                {isUpdating ? '🔄 Updating...' : '🔄 Refresh Now'}
+              </button>
+            </div>
           </div>
 
           {/* Stars Team Highlight */}
@@ -127,6 +206,16 @@ export default function StandingsPage() {
                 }`}
               >
                 📊 DIVISION
+              </button>
+              <button
+                onClick={() => setFilter('conference')}
+                className={`px-3 sm:px-4 py-2 rounded-lg font-bold uppercase text-xs transition-all ${
+                  filter === 'conference'
+                    ? 'bg-green-600 text-white border-2 border-black'
+                    : 'bg-gray-200 text-black hover:bg-gray-300'
+                }`}
+              >
+                🌎 CONFERENCE
               </button>
             </div>
           </div>

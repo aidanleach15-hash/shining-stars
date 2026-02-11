@@ -10,6 +10,10 @@
       "schedule": "0 0 * * *"
     },
     {
+      "path": "/api/update-ahl-standings",
+      "schedule": "*/15 * * * *"
+    },
+    {
       "path": "/api/award-predictions",
       "schedule": "*/30 * * * *"
     },
